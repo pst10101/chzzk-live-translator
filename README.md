@@ -10,6 +10,8 @@ A Chrome extension that turns Korean speech on [CHZZK](https://chzzk.naver.com) 
 > - Use it at your own risk. Translations can be wrong, and it is provided "as is" without warranty (see [LICENSE](LICENSE)).
 > - If a rights holder, NAVER/CHZZK or a streamer has a problem with this project, please open an issue and I will change or remove it promptly.
 
+*Built with the help of [Claude](https://claude.ai) (Anthropic), an AI assistant.*
+
 ## Features
 
 - Live subtitles over the video player, in English, Japanese, Chinese, Spanish and more

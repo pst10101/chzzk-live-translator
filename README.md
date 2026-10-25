@@ -4,7 +4,11 @@
 
 A Chrome extension that turns Korean speech on [CHZZK](https://chzzk.naver.com) live streams into **live subtitles in your language**, and **translates the chat** as it scrolls by.
 
-> Fan-made project. Not affiliated with NAVER or CHZZK.
+> **Disclaimer**
+> - This is an unofficial, fan-made, non-commercial project for personal and fan use. It is not affiliated with, endorsed by, or sponsored by NAVER, CHZZK, Stellive or any streamer. All names and trademarks belong to their owners.
+> - It does not download, record, save or re-upload any stream. It only listens to the audio and reads the chat of the page you are watching (short audio pieces go to the speech service you choose, see Privacy) and shows translations on your own screen.
+> - Use it at your own risk. Translations can be wrong, and it is provided "as is" without warranty (see [LICENSE](LICENSE)).
+> - If a rights holder, NAVER/CHZZK or a streamer has a problem with this project, please open an issue and I will change or remove it promptly.
 
 ## Features
 

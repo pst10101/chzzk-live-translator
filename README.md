@@ -32,13 +32,20 @@ Start with **Free**. If the subtitles miss too much (fast talking, game sound, u
 
 ## Install
 
-1. Download this project: **Releases → the latest `.zip`**, or **Code → Download ZIP**, and unzip it.
-2. Open `chrome://extensions` in Chrome.
-3. Turn on **Developer mode** (top right).
-4. Click **Load unpacked** and choose the unzipped `chzzk-translator` folder (the one that contains `manifest.json`).
-5. Click the puzzle icon in the toolbar and **pin** CHZZK Live Translator.
+This is a normal Chrome extension that you load by hand (no Chrome Web Store needed). It takes about a minute.
+
+1. **Download**: open the [latest release](https://github.com/pst10101/chzzk-live-translator/releases/latest) and click **`chzzk-live-translator-v1.0.0.zip`** under *Assets*.
+2. **Unzip**: right-click the zip → **Extract All** (Windows) or double-click it (Mac). Put the folder somewhere permanent, like `Documents`. Chrome reads the extension from this folder every time, so **do not delete or move it** afterwards.
+3. Open **`chrome://extensions`** in Chrome (type it in the address bar).
+4. Turn on **Developer mode** (switch in the top right).
+5. Click **Load unpacked** (top left) and select the unzipped folder, the one that directly contains `manifest.json`. If you see only one more folder inside, open it and select that one.
+6. **CHZZK Live Translator** now appears in the list. Click the puzzle icon in Chrome's toolbar and **pin** it so the icon is always visible.
 
 > If a CHZZK tab was already open, refresh it once.
+
+**Update later**: download the new zip, replace the old folder's files with the new ones, then press the circular arrow on the extension's card in `chrome://extensions`.
+
+**Trouble?** "Manifest file is missing or unreadable" means you selected the wrong folder (go one level deeper or up). If *Load unpacked* is missing, Developer mode is off.
 
 ## Use (Free mode)
 

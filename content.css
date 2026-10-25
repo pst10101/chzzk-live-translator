@@ -1,0 +1,152 @@
+/* ---------- subtitles over the player ---------- */
+.ctr-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 0 4% 9%;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, "Segoe UI", "Noto Sans", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+}
+
+.ctr-lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+  font-size: var(--ctr-font, 24px);
+  max-width: 100%;
+  /* the subtitles can be dragged anywhere on the player */
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.ctr-lines.ctr-custom {
+  position: absolute;
+  width: max-content;
+  max-width: 92%;
+  transform: translate(-50%, -100%);
+}
+
+.ctr-lines.ctr-dragging {
+  cursor: grabbing;
+}
+
+.ctr-lines.ctr-dragging .ctr-line {
+  outline: 2px dashed rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
+.ctr-line {
+  max-width: 100%;
+  padding: 0.2em 0.6em 0.25em;
+  border-radius: 0.3em;
+  background: rgba(8, 8, 10, 0.74);
+  color: #fff;
+  text-align: center;
+  line-height: 1.32;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  animation: ctr-in 0.18s ease-out;
+}
+
+.ctr-tr {
+  font-weight: 650;
+  overflow-wrap: anywhere;
+}
+
+.ctr-ko {
+  font-size: 0.62em;
+  font-weight: 500;
+  opacity: 0.78;
+  overflow-wrap: anywhere;
+}
+
+.ctr-line.ctr-pending .ctr-tr {
+  display: none;
+}
+
+.ctr-line.ctr-pending .ctr-ko {
+  font-size: 0.75em;
+  opacity: 0.85;
+}
+
+.ctr-status {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  max-width: 70%;
+  padding: 5px 10px 5px 9px;
+  border-left: 3px solid #34d399;
+  border-radius: 4px;
+  background: rgba(8, 8, 10, 0.8);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.ctr-status.ctr-show {
+  opacity: 1;
+  transform: none;
+}
+
+.ctr-status[data-level="warn"] {
+  border-left-color: #fbbf24;
+}
+
+.ctr-status[data-level="error"] {
+  border-left-color: #f87171;
+}
+
+@keyframes ctr-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+/* ---------- translated chat lines ---------- */
+.ctr-chat-tr {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.93em;
+  font-style: normal;
+  color: color-mix(in srgb, currentColor 62%, #4ea8ff);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- clickable notices ---------- */
+.ctr-status.ctr-action {
+  pointer-events: auto;
+  cursor: pointer;
+  border-left-color: #3ddc97;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ctr-status.ctr-action:hover {
+  background: rgba(30, 32, 38, 0.95);
+}
+
+/* chat-only window: notices float at the top right */
+.ctr-floating {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  z-index: 2147483000;
+  max-width: 320px;
+}
+
+.ctr-floating .ctr-status {
+  position: static;
+  max-width: none;
+}

@@ -1,0 +1,308 @@
+:root {
+  --bg: #121316;
+  --panel: #1b1d22;
+  --line: #2a2d34;
+  --text: #eceef2;
+  --muted: #9aa0ab;
+  --accent: #3ddc97;
+  --accent-ink: #062b1b;
+  --warn: #fbbf24;
+  --err: #f87171;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  width: 340px;
+  margin: 0;
+  padding: 14px 14px 16px;
+  background: var(--bg);
+  color: var(--text);
+  font: 13px/1.45 system-ui, -apple-system, "Segoe UI", "Noto Sans KR", sans-serif;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+section,
+details {
+  margin-top: 10px;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.primary {
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.primary.stop {
+  background: #2b2e35;
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.secondary {
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+  color: var(--text);
+}
+
+.link {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 11px;
+}
+
+.pos-btns {
+  display: flex;
+  gap: 12px;
+}
+
+.pos-btns .link {
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.hint {
+  margin: -4px 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.status {
+  min-height: 1.2em;
+  margin: 6px 2px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.status.warn {
+  color: var(--warn);
+}
+
+.status.err {
+  color: var(--err);
+}
+
+.status.ok {
+  color: var(--accent);
+}
+
+.group {
+  padding: 4px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 0;
+}
+
+.row + .row,
+#customLang + .row {
+  border-top: 1px solid var(--line);
+}
+
+select,
+input[type="text"],
+input[type="password"],
+textarea {
+  width: 100%;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #0e0f12;
+  color: var(--text);
+  font: inherit;
+}
+
+.row select {
+  width: 160px;
+}
+
+#customLang {
+  margin: 0 0 8px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+input[type="range"] {
+  width: 140px;
+  accent-color: var(--accent);
+}
+
+.usage {
+  display: grid;
+  gap: 3px;
+  padding: 0 2px;
+  font-size: 12px;
+}
+
+.usage div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.usage .k {
+  color: var(--muted);
+}
+
+.usage .v {
+  font-variant-numeric: tabular-nums;
+}
+
+details {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 0 12px;
+}
+
+details[open] {
+  padding-bottom: 12px;
+}
+
+summary {
+  padding: 9px 0;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.field {
+  display: block;
+  margin-top: 10px;
+}
+
+.lbl {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.lbl a {
+  color: var(--accent);
+  font-weight: 500;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+textarea {
+  resize: vertical;
+}
+
+.engine {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-top: 0;
+}
+
+.engine label {
+  position: relative;
+  cursor: pointer;
+}
+
+.engine input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.engine span {
+  display: block;
+  height: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.engine b {
+  display: block;
+  font-size: 13px;
+}
+
+.engine small {
+  margin-top: 2px;
+  line-height: 1.3;
+}
+
+.engine input:checked + span {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.engine input:focus-visible + span {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.note {
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.muted {
+  color: var(--muted);
+  font-weight: 400;
+}

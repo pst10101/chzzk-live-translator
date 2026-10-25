@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CHZZK Live Translator</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header>
+      <img src="icons/icon48.png" alt="" width="22" height="22" />
+      <h1>CHZZK Live Translator</h1>
+    </header>
+
+    <section class="engine" role="radiogroup" aria-label="Engine">
+      <label>
+        <input type="radio" name="engine" value="free" />
+        <span><b>Free</b><small>Chrome built-in · no key · no limit</small></span>
+      </label>
+      <label>
+        <input type="radio" name="engine" value="keys" />
+        <span><b>High accuracy</b><small>Whisper + AI · free keys</small></span>
+      </label>
+    </section>
+
+    <section class="main">
+      <button id="toggle" class="primary">Start live subtitles</button>
+      <p id="status" class="status" role="status"></p>
+    </section>
+
+    <section class="group">
+      <label class="row">
+        <span>Translate into</span>
+        <select id="targetLang"></select>
+      </label>
+      <input id="customLang" class="hidden" type="text" placeholder="Language name, e.g. Swahili" />
+
+      <label class="row switch">
+        <span>Translate chat</span>
+        <input id="chatEnabled" type="checkbox" />
+      </label>
+      <label class="row switch">
+        <span>Show Korean under subtitles</span>
+        <input id="subsShowOriginal" type="checkbox" />
+      </label>
+      <label class="row" id="paceRow">
+        <span>Whisper timing</span>
+        <select id="speechPace">
+          <option value="allday">All day (~8 h/day)</option>
+          <option value="fast">Fast (~3–5 h/day)</option>
+        </select>
+      </label>
+      <label class="row">
+        <span>Subtitle size</span>
+        <input id="subFontSize" type="range" min="14" max="44" step="1" />
+      </label>
+      <div class="row">
+        <span>Subtitle position</span>
+        <span class="pos-btns">
+          <button id="movePos" class="link" type="button" title="Shows a sample line on the player — drag it where you want">move</button>
+          <button id="resetPos" class="link" type="button" title="Back to the bottom centre">reset</button>
+        </span>
+      </div>
+      <p class="hint">Drag the subtitles on the video to move them.</p>
+    </section>
+
+    <p id="freeNote" class="note">Free mode uses Chrome's own speech recognition and translator. First time, Chrome may ask you to click once on the player to download the translator.</p>
+
+    <p id="keysNote" class="note">Uses your free Groq key. <b>All day</b>: subtitles about 15 s behind, lasts about 8 hours a day. <b>Fast</b>: 5–10 s behind, lasts 3–5 hours. When the free limit runs out, Chrome's free speech recognition takes over automatically.</p>
+
+    <section class="usage" id="usage">
+      <div><span class="k">Speech today</span><span id="uGroq" class="v">–</span></div>
+      <div><span class="k">Translations today</span><span id="uNv" class="v">–</span></div>
+    </section>
+
+    <details id="setup">
+      <summary>API keys &amp; models <span class="muted">(High accuracy)</span></summary>
+
+      <label class="field">
+        <span class="lbl">Groq API key <a href="https://console.groq.com/keys" target="_blank">get free key ↗</a></span>
+        <input id="groqKey" type="password" autocomplete="off" spellcheck="false" placeholder="gsk_…" />
+        <small>Turns speech into text (Whisper). Free, no card.</small>
+      </label>
+
+      <label class="field">
+        <span class="lbl">NVIDIA API key (optional) <a href="https://build.nvidia.com/meta/llama-3_3-70b-instruct" target="_blank">get free key ↗</a></span>
+        <input id="nvidiaKey" type="password" autocomplete="off" spellcheck="false" placeholder="nvapi-…" />
+        <small>Optional. AI translation (better with slang). Without it, Chrome's built-in translator is used.</small>
+      </label>
+
+      <label class="field">
+        <span class="lbl">Speech model</span>
+        <select id="whisperModel">
+          <option value="whisper-large-v3">whisper-large-v3 — most accurate</option>
+          <option value="whisper-large-v3-turbo">whisper-large-v3-turbo — a bit faster</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="lbl">Translation model <button id="loadModels" class="link" type="button">load list</button></span>
+        <input id="llmModel" type="text" list="modelList" spellcheck="false" />
+        <datalist id="modelList"></datalist>
+        <small>Pick a fast, non-“reasoning” model for low delay.</small>
+      </label>
+
+      <label class="field">
+        <span class="lbl">Names &amp; terms</span>
+        <textarea id="glossary" rows="4" spellcheck="false" placeholder="One per line, optional translation after =&#10;예) 멤버이름 = Member Name&#10;자주 쓰는 말 = how to translate it"></textarea>
+        <small>Helps spell names correctly and keeps translations consistent.</small>
+      </label>
+
+      <button id="test" class="secondary" type="button">Test keys</button>
+      <p id="testResult" class="status"></p>
+    </details>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

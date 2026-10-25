@@ -1,0 +1,109 @@
+// Prompt building and response parsing for the translation model (pure, testable in Node).
+
+/** "아이네 = Ine, 징버거" (commas or new lines) -> [{ ko: "아이네", tr: "Ine" }, { ko: "징버거", tr: "" }] */
+export function parseGlossary(text) {
+  return String(text || "")
+    .split(/[\n,]/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [ko, ...rest] = entry.split(/=|→|->/);
+      return { ko: ko.trim(), tr: rest.join("=").trim() };
+    })
+    .filter((e) => e.ko);
+}
+
+/** Korean spellings only — Whisper uses this as a spelling hint. */
+export function whisperPromptFrom(glossaryText) {
+  const terms = parseGlossary(glossaryText).map((e) => e.ko);
+  let out = "";
+  for (const t of terms) {
+    const next = out ? `${out}, ${t}` : t;
+    if (next.length > 300) break;
+    out = next;
+  }
+  return out;
+}
+
+function glossaryBlock(glossaryText) {
+  const entries = parseGlossary(glossaryText);
+  if (!entries.length) return "";
+  const lines = entries.map((e) => (e.tr ? `- ${e.ko} → ${e.tr}` : `- ${e.ko} (proper name, keep consistent)`));
+  return `\n\nGlossary (use these renderings):\n${lines.join("\n")}`;
+}
+
+export function buildSubtitleMessages({ text, context = [], lang, glossary }) {
+  const system =
+    `You are a live subtitle translator for a Korean live stream. ` +
+    `Translate the CURRENT line from Korean into ${lang}. ` +
+    `The input comes from speech recognition and may contain mistakes; translate what the speaker most likely meant. ` +
+    `Write natural, casual, short subtitles like a fan translator would. ` +
+    `Output ONLY the ${lang} translation of the current line — no quotes, no romanization, no notes.` +
+    glossaryBlock(glossary);
+
+  const ctx = context
+    .slice(-3)
+    .map((c) => `KO: ${c.ko}${c.tr ? `\n${lang}: ${c.tr}` : ""}`)
+    .join("\n");
+  const user = (ctx ? `Previous lines (context only, do not translate again):\n${ctx}\n\n` : "") + `CURRENT line:\n${text}`;
+
+  return [
+    { role: "system", content: system },
+    { role: "user", content: user },
+  ];
+}
+
+export function buildChatMessages({ texts, lang, glossary }) {
+  const system =
+    `You translate Korean live-stream chat messages into ${lang}. ` +
+    `Chat uses internet slang (e.g. ㅋㅋ = lol, ㄹㅇ = for real, ㅇㅈ = agreed, ㄱㄱ = let's go); translate the meaning naturally and keep it short. ` +
+    `Keep emojis and emoticons as they are. If a message is not Korean, copy it unchanged. ` +
+    `You receive a JSON array of N strings. Reply with ONLY a JSON array of exactly N translated strings in the same order.` +
+    glossaryBlock(glossary);
+  return [
+    { role: "system", content: system },
+    { role: "user", content: JSON.stringify(texts) },
+  ];
+}
+
+/** Removes reasoning blocks some models emit. */
+export function stripThinking(s) {
+  return String(s || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/^[\s\S]*?<\/think>/i, "")
+    .trim();
+}
+
+export function cleanSubtitle(s) {
+  let t = stripThinking(s).split("\n").filter((l) => l.trim()).join(" ").trim();
+  t = t.replace(/^(translation|current line|번역)\s*[:：]\s*/i, "");
+  if (/^["“「『].*["”」』]$/.test(t)) t = t.slice(1, -1).trim();
+  return t;
+}
+
+/** Returns an array of length n; entries the model failed to give are null. */
+export function parseChatResponse(content, n) {
+  const text = stripThinking(content).replace(/```(?:json)?/gi, "");
+  const start = text.indexOf("[");
+  const end = text.lastIndexOf("]");
+  if (start !== -1 && end > start) {
+    try {
+      const arr = JSON.parse(text.slice(start, end + 1));
+      if (Array.isArray(arr)) {
+        const out = arr.map((x) => (typeof x === "string" ? x.trim() : x == null ? null : String(x)));
+        if (out.length === n) return out;
+        if (out.length > n) return out.slice(0, n);
+        return [...out, ...Array(n - out.length).fill(null)];
+      }
+    } catch {
+      /* fall through */
+    }
+  }
+  // Fallback: numbered or plain lines.
+  const lines = text
+    .split("\n")
+    .map((l) => l.replace(/^\s*(\d+[.)]|[-*])\s*/, "").replace(/^"(.*)",?$/, "$1").trim())
+    .filter(Boolean);
+  if (lines.length === n) return lines;
+  return Array(n).fill(null);
+}

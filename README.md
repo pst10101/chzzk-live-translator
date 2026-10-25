@@ -1,6 +1,6 @@
 # CHZZK Live Translator
 
-**[한국어 설명서 →](README.ko.md)**
+**English | [한국어](README.ko.md) | [日本語](README.ja.md)**
 
 A Chrome extension that turns Korean speech on [CHZZK](https://chzzk.naver.com) live streams into **live subtitles in your language**, and **translates the chat** as it scrolls by.
 

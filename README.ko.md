@@ -1,6 +1,6 @@
 # CHZZK Live Translator
 
-**[English →](README.md)**
+**[English](README.md) | 한국어 | [日本語](README.ja.md)**
 
 [치지직](https://chzzk.naver.com) 라이브의 **한국어 음성을 실시간 자막**으로 바꾸고, **채팅을 원하는 언어로 번역**해 주는 크롬 확장 프로그램입니다.
 

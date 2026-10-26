@@ -31,6 +31,7 @@ const els = {
   targetLang: $("targetLang"),
   customLang: $("customLang"),
   chatEnabled: $("chatEnabled"),
+  chatToKorean: $("chatToKorean"),
   subsShowOriginal: $("subsShowOriginal"),
   subFontSize: $("subFontSize"),
   groqKey: $("groqKey"),
@@ -96,6 +97,7 @@ async function loadSettings() {
   els.customLang.classList.toggle("hidden", known);
 
   els.chatEnabled.checked = s.chatEnabled;
+  els.chatToKorean.checked = s.chatToKorean;
   els.subsShowOriginal.checked = s.subsShowOriginal;
   els.subFontSize.value = s.subFontSize;
   els.groqKey.value = s.groqKey;
@@ -133,6 +135,10 @@ els.customLang.addEventListener("input", () => {
   if (v) saveSoon({ targetLang: v });
 });
 els.chatEnabled.addEventListener("change", () => save({ chatEnabled: els.chatEnabled.checked }));
+els.chatToKorean.addEventListener("change", () => {
+  if (els.chatToKorean.checked) warmKoreanTranslators();
+  save({ chatToKorean: els.chatToKorean.checked });
+});
 els.subsShowOriginal.addEventListener("change", () => save({ subsShowOriginal: els.subsShowOriginal.checked }));
 els.subFontSize.addEventListener("input", () => saveSoon({ subFontSize: Number(els.subFontSize.value) }));
 // The CHZZK tab listens for these: "move" shows a sample line to drag, "reset" puts the subtitles back at the bottom.
@@ -217,8 +223,22 @@ function warmTranslator() {
   } catch {}
 }
 
+// Foreign chat → Korean: use this click to fetch Chrome's free translators for the common chat languages.
+function warmKoreanTranslators() {
+  try {
+    if ("LanguageDetector" in self) LanguageDetector.create().catch(() => {});
+    if (!("Translator" in self)) return;
+    for (const src of ["en", "ja", "zh"]) {
+      Translator.create({ sourceLanguage: src, targetLanguage: "ko" }).catch(() => {});
+    }
+  } catch {}
+}
+
 els.toggle.addEventListener("click", async () => {
-  if (engine === "free" && !isRunning()) warmTranslator();
+  if (engine === "free" && !isRunning()) {
+    warmTranslator();
+    if (els.chatToKorean.checked) warmKoreanTranslators();
+  }
   els.toggle.disabled = true;
   try {
     if (isRunning()) {

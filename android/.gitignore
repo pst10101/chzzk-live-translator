@@ -1,0 +1,9 @@
+.gradle/
+build/
+app/build/
+local.properties
+*.apk
+*.keystore
+.idea/
+*.iml
+app/src/main/assets/chat-utils.js

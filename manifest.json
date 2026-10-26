@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "CHZZK Live Translator",
   "short_name": "CHZZK Translator",
-  "version": "1.0.0",
-  "description": "Live subtitles and chat translation for CHZZK streams — Korean to any language. Free mode needs no keys.",
+  "version": "1.1.0",
+  "description": "Live subtitles and chat translation for CHZZK streams — Korean to any language, and foreign chat to Korean. Free mode needs no keys.",
   "permissions": [
     "tabCapture",
     "offscreen",
@@ -48,6 +48,7 @@
         "https://chzzk.naver.com/*"
       ],
       "js": [
+        "chat-utils.js",
         "content.js"
       ],
       "css": [

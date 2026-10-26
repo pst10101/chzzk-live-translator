@@ -3,6 +3,7 @@ import { getSettings, todayKey } from "./defaults.js";
 import {
   buildSubtitleMessages,
   buildChatMessages,
+  buildChatToKoreanMessages,
   parseChatResponse,
   cleanSubtitle,
   whisperPromptFrom,
@@ -279,13 +280,17 @@ async function translateSubtitle(id, text, tabId) {
   }
 }
 
-async function translateChat(texts) {
+/** dir "out": Korean → targetLang, dir "ko": other languages → Korean. */
+async function translateChat(texts, dir = "out") {
   const cfg = await getSettings();
   if (!cfg.nvidiaKey) return { ok: false, error: "NO_NVIDIA_KEY" };
   if (!Array.isArray(texts) || !texts.length) return { ok: true, translations: [] };
   if (!(await nvAcquire(true, 4000))) return { ok: false, error: "BUSY" };
   try {
-    const messages = buildChatMessages({ texts, lang: cfg.targetLang, glossary: cfg.glossary });
+    const messages =
+      dir === "ko"
+        ? buildChatToKoreanMessages({ texts, glossary: cfg.glossary })
+        : buildChatMessages({ texts, lang: cfg.targetLang, glossary: cfg.glossary });
     const content = await nvChat(cfg, messages, Math.min(4000, 100 + texts.length * 80));
     return { ok: true, translations: parseChatResponse(content, texts.length) };
   } catch (e) {
@@ -312,7 +317,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
       return true;
     // from content script
     case "translateChat":
-      translateChat(msg.texts).then(sendResponse);
+      translateChat(msg.texts, msg.dir).then(sendResponse);
       return true;
     // from offscreen
     case "transcript":

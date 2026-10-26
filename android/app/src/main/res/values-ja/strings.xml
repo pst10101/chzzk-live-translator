@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btn_stop">停止</string>
+    <string name="notif_channel">ライブ翻訳</string>
+    <string name="notif_text">配信の音声から字幕を作成中…</string>
+
+    <string name="st_listening">聞き取り中… 話してから数秒で字幕が出ます</string>
+    <string name="st_stopped">字幕を停止しました</string>
+    <string name="st_capture_failed">音声をキャプチャできませんでした (%1$s)</string>
+    <string name="st_capture_denied">画面／音声のキャプチャが許可されませんでした</string>
+    <string name="st_need_mic">字幕には音声キャプチャの許可が必要です</string>
+    <string name="st_no_groq">設定（⚙）で無料の Groq API キーを入力してください</string>
+    <string name="st_bad_groq">Groq API キーが無効です — 設定を確認してください</string>
+    <string name="st_groq_quota">Groq の無料音声枠を使い切りました — %1$s に再開します</string>
+    <string name="st_groq_wait">音声の上限に達しました — %1$d 秒後に再開</string>
+    <string name="st_speech_error">音声認識サーバーのエラー (%1$d)</string>
+    <string name="st_network">ネットワークの問題 — 再試行中</string>
+    <string name="st_tr_busy">翻訳の上限に達しました — しばらく韓国語で表示します</string>
+    <string name="st_tr_error">翻訳エラー (%1$d)</string>
+    <string name="st_old_webview">この端末の WebView が古いためチャット翻訳を使えません — Play ストアで「Android System WebView」を更新してください</string>
+
+    <string name="set_title">設定</string>
+    <string name="set_intro">字幕には無料の Groq API キーが必要です（カード登録不要）。キーはこの端末にだけ保存され、Groq / NVIDIA にのみ送信されます。</string>
+    <string name="set_groq">Groq API キー（必須）</string>
+    <string name="set_groq_get">無料の Groq キーを取得 ↗</string>
+    <string name="set_nv">NVIDIA API キー（任意 — スラングに強い）</string>
+    <string name="set_nv_get">無料の NVIDIA キーを取得 ↗</string>
+    <string name="set_lang">翻訳先の言語</string>
+    <string name="set_pace">Whisper のタイミング</string>
+    <string name="pace_allday">一日中（約15秒遅れ、1日約8時間）</string>
+    <string name="pace_fast">速い（5〜10秒遅れ、1日3〜5時間）</string>
+    <string name="set_chat">チャットを翻訳（韓国語 → 選んだ言語）</string>
+    <string name="set_chat_ko">外国語チャット → 한국어（韓国語）</string>
+    <string name="set_orig">字幕の下に韓国語の原文を表示</string>
+    <string name="set_font">字幕の大きさ</string>
+    <string name="set_glossary">名前・用語（1行に1つ。例：멤버이름 = メンバー名）</string>
+    <string name="set_privacy">仕組み：▶ CC を押すと、Android が画面の録画／キャストの許可を求めます。アプリは配信の音声を聞くためだけに使い、画面を録画したりどこかへ送ったりはしません。字幕がオンの間は他のアプリの音も拾うことがあるので、見終わったら ■ CC で止めてください。</string>
+    <string name="btn_save">保存</string>
+    <string name="btn_cancel">キャンセル</string>
+</resources>

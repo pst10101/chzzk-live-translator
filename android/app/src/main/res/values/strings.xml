@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">CHZZK Live Translator</string>
+    <string name="btn_cc_start" translatable="false">▶ CC</string>
+    <string name="btn_cc_stop" translatable="false">■ CC</string>
+    <string name="btn_stop">Stop</string>
+    <string name="notif_channel">Live translation</string>
+    <string name="notif_text">Making subtitles from the stream\'s sound…</string>
+
+    <string name="st_listening">Listening… subtitles appear a few seconds after speech</string>
+    <string name="st_stopped">Subtitles stopped</string>
+    <string name="st_capture_failed">Couldn\'t capture the sound (%1$s)</string>
+    <string name="st_capture_denied">Screen / audio capture wasn\'t allowed</string>
+    <string name="st_need_mic">The audio capture permission is needed for subtitles</string>
+    <string name="st_no_groq">Add your free Groq API key in Settings (⚙)</string>
+    <string name="st_bad_groq">Groq API key is invalid — check it in Settings</string>
+    <string name="st_groq_quota">Groq\'s free speech limit is used up — subtitles resume at %1$s</string>
+    <string name="st_groq_wait">Speech limit reached — resuming in %1$d s</string>
+    <string name="st_speech_error">Speech service error (%1$d)</string>
+    <string name="st_network">Network problem — retrying</string>
+    <string name="st_tr_busy">Translation limit reached — showing Korean for a moment</string>
+    <string name="st_tr_error">Translation error (%1$d)</string>
+    <string name="st_old_webview">This phone\'s WebView is too old for chat translation — update \"Android System WebView\" in the Play Store</string>
+
+    <string name="set_title">Settings</string>
+    <string name="set_intro">Subtitles need a free Groq API key (no card needed). Your keys stay on this phone and are only sent to Groq / NVIDIA.</string>
+    <string name="set_groq">Groq API key (required)</string>
+    <string name="set_groq_get">Get a free Groq key ↗</string>
+    <string name="set_nv">NVIDIA API key (optional — better with slang)</string>
+    <string name="set_nv_get">Get a free NVIDIA key ↗</string>
+    <string name="set_lang">Translate into</string>
+    <string name="set_pace">Whisper timing</string>
+    <string name="pace_allday">All day (~15 s behind, ~8 h a day)</string>
+    <string name="pace_fast">Fast (5–10 s behind, 3–5 h a day)</string>
+    <string name="set_chat">Translate chat (Korean → your language)</string>
+    <string name="set_chat_ko">Foreign chat → 한국어 (Korean)</string>
+    <string name="set_orig">Show Korean under subtitles</string>
+    <string name="set_font">Subtitle size</string>
+    <string name="set_glossary">Names &amp; terms (one per line, e.g. 멤버이름 = Member Name)</string>
+    <string name="set_privacy">How it works: when you tap ▶ CC, Android asks to allow screen recording / casting. The app only uses it to hear the stream\'s sound — the screen is never recorded or sent anywhere. While subtitles are on, sound from other apps can be captured too, so tap ■ CC when you\'re done.</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_cancel">Cancel</string>
+</resources>

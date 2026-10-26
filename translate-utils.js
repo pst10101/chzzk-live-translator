@@ -25,10 +25,16 @@ export function whisperPromptFrom(glossaryText) {
   return out;
 }
 
-function glossaryBlock(glossaryText) {
+function glossaryBlock(glossaryText, reverse = false) {
   const entries = parseGlossary(glossaryText);
   if (!entries.length) return "";
-  const lines = entries.map((e) => (e.tr ? `- ${e.ko} → ${e.tr}` : `- ${e.ko} (proper name, keep consistent)`));
+  const lines = entries.map((e) =>
+    e.tr
+      ? reverse
+        ? `- ${e.tr} → ${e.ko}`
+        : `- ${e.ko} → ${e.tr}`
+      : `- ${e.ko} (proper name, keep consistent)`
+  );
   return `\n\nGlossary (use these renderings):\n${lines.join("\n")}`;
 }
 
@@ -50,6 +56,21 @@ export function buildSubtitleMessages({ text, context = [], lang, glossary }) {
   return [
     { role: "system", content: system },
     { role: "user", content: user },
+  ];
+}
+
+/** Chat in other languages (English, Japanese, Chinese…) → natural Korean stream-chat style. */
+export function buildChatToKoreanMessages({ texts, glossary }) {
+  const system =
+    `You translate live-stream chat messages written by foreign viewers (English, Japanese, Chinese and other languages) into Korean. ` +
+    `Write short, natural, casual Korean the way Korean stream chat talks (e.g. lol / www / 草 = ㅋㅋ). ` +
+    `Keep emojis and emoticons as they are, and keep streamer and member names as they are or as in the glossary. ` +
+    `If a message is already Korean, copy it unchanged. ` +
+    `You receive a JSON array of N strings. Reply with ONLY a JSON array of exactly N translated strings in the same order.` +
+    glossaryBlock(glossary, true);
+  return [
+    { role: "system", content: system },
+    { role: "user", content: JSON.stringify(texts) },
   ];
 }
 

@@ -115,6 +115,10 @@
 }
 
 /* ---------- translated chat lines ---------- */
+.ctr-chat-tr.ctr-to-ko {
+  color: color-mix(in srgb, currentColor 62%, #2ec27e);
+}
+
 .ctr-chat-tr {
   display: block;
   margin-top: 2px;

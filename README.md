@@ -2,7 +2,7 @@
 
 **English | [한국어](README.ko.md) | [日本語](README.ja.md)**
 
-A Chrome extension that turns Korean speech on [CHZZK](https://chzzk.naver.com) live streams into **live subtitles in your language**, and **translates the chat** as it scrolls by.
+A Chrome extension — and now an **Android app (beta)** — that turns Korean speech on [CHZZK](https://chzzk.naver.com) live streams and replays into **live subtitles in your language**, and **translates the chat** as it scrolls by.
 
 > **Disclaimer**
 > - This is an unofficial, fan-made, non-commercial project for personal and fan use. It is not affiliated with, endorsed by, or sponsored by NAVER, CHZZK, Stellive or any streamer. All names and trademarks belong to their owners.
@@ -16,6 +16,9 @@ A Chrome extension that turns Korean speech on [CHZZK](https://chzzk.naver.com) 
 
 - Live subtitles over the video player, in English, Japanese, Chinese, Spanish and more
 - Chat translation under each message (nicknames are left alone; copy-paste spam is translated once and shown as "×N")
+- **Foreign chat → 한국어**: chat written in English, Japanese, Chinese and other languages can be translated into Korean — handy for Korean viewers and streamers (off by default)
+- Works on live streams and replays
+- [Android app (beta)](#android-app-beta) with the same subtitles and chat translation
 - Two modes:
 
 | Mode | Speech recognition | Translation | API keys | Limits |
@@ -28,13 +31,13 @@ Start with **Free**. If the subtitles miss too much (fast talking, game sound, u
 ## Requirements
 
 - Desktop Google Chrome, version 138 or newer (Free mode needs Chrome's built-in translator)
-- Does not work on phones
+- On Android phones, use the [Android app (beta)](#android-app-beta). iPhone / iPad are not supported.
 
-## Install
+## Install (Chrome extension)
 
 This is a normal Chrome extension that you load by hand (no Chrome Web Store needed). It takes about a minute.
 
-1. **Download**: open the [latest release](https://github.com/pst10101/chzzk-live-translator/releases/latest) and click **`chzzk-live-translator-v1.0.0.zip`** under *Assets*.
+1. **Download**: open the [latest release](https://github.com/pst10101/chzzk-live-translator/releases/latest) and click the extension zip **`chzzk-live-translator-v1.x.x.zip`** under *Assets* (the number may be newer).
 2. **Unzip**: right-click the zip → **Extract All** (Windows) or double-click it (Mac). Put the folder somewhere permanent, like `Documents`. Chrome reads the extension from this folder every time, so **do not delete or move it** afterwards.
 3. Open **`chrome://extensions`** in Chrome (type it in the address bar).
 4. Turn on **Developer mode** (switch in the top right).
@@ -55,6 +58,35 @@ This is a normal Chrome extension that you load by hand (no Chrome Web Store nee
 4. The first time, Chrome may need to download its translator. If you see *"Click here to download the free … translator"* on the player, click it once.
 
 While someone is talking, the Korean text appears in grey; when the sentence ends it turns into the translation. Chat is translated automatically (turn off **Translate chat** to stop it).
+
+To also translate chat written in **other languages into Korean**, turn on **Foreign chat → 한국어**. Those translations are shown in green. In Free mode, Chrome may ask you once to click a message on the player to download a translator into Korean.
+
+## Android app (beta)
+
+The same live subtitles and chat translation on Android phones — a separate app with CHZZK's mobile site built in.
+
+- Android 10 or newer
+- **A free Groq key is required** (see [Groq key](#groq-key-speech-recognition--required-for-high-accuracy)); the NVIDIA key is optional. Phones have no Free mode, because Chrome's built-in speech recognition and translator aren't available to apps.
+- Not on the Play Store — you install the APK file yourself. It is a **beta** that has only been tested on a few phones, so please report problems in [Issues](https://github.com/pst10101/chzzk-live-translator/issues).
+
+### Install
+
+1. On your phone, open the [latest release](https://github.com/pst10101/chzzk-live-translator/releases/latest) and download **`chzzk-live-translator-android-v1.x.x.apk`**.
+2. Open the downloaded file. Android asks to allow installing apps from this source (your browser or Files app): allow it, go back, and tap **Install**. If Play Protect warns that the app is unknown, tap **More details → Install anyway**.
+3. Open **CHZZK Live Translator**. Settings open the first time: paste your **Groq key**, choose **Translate into**, and tap **Save**.
+
+### Use
+
+1. Open a live stream (or a replay) in the app and start playing it.
+2. Tap **▶ CC** on the small floating bar. Android asks to allow screen recording / casting — the app needs it only to hear the sound; the screen is never recorded or sent anywhere. Tap **Start**.
+3. Subtitles appear on the video a few seconds after speech (also in fullscreen).
+4. Tap **■ CC**, or **Stop** in the notification, when you're done.
+
+- **⚙** opens settings: keys, language, Whisper timing, *Translate chat*, *Foreign chat → 한국어*, subtitle size, names & terms.
+- If the floating bar covers something, drag it up or down by its **⠿** handle.
+- Chat translations appear in the chat under the player.
+- When Groq's daily free limit runs out, subtitles pause and come back when it resets (the app shows the time).
+- While subtitles are on, sound from other apps can be captured too, so stop them when you're done.
 
 ## Getting API keys (High accuracy mode)
 
@@ -122,13 +154,14 @@ Each Groq account has its own free limit. If you use your own key, your viewing 
 Yes. Free mode needs nothing. High accuracy uses Groq's and NVIDIA's free tiers; you never enter payment details in this extension.
 
 **Can I use it on my phone?**
-No. It is a desktop Chrome extension.
+On Android, yes — install the [Android app (beta)](#android-app-beta). iPhone / iPad are not supported.
 
 ## Privacy
 
 - Free mode: the stream's audio goes to Chrome's speech recognition service; translation happens on your computer.
 - High accuracy mode: the stream's audio goes to Groq; text goes to NVIDIA if you added an NVIDIA key.
-- Nothing is sent anywhere else, and the extension collects no data.
+- Android app: the stream's sound goes to Groq; text goes to NVIDIA if you added an NVIDIA key, otherwise to Groq. Keys are stored only inside the app on your phone.
+- Nothing is sent anywhere else, and neither the extension nor the app collects any data.
 
 ## Troubleshooting
 
@@ -139,7 +172,9 @@ No. It is a desktop Chrome extension.
 | "Click here to start free subtitles" | Click that message once |
 | Only Korean, no translation | Free: click the translator download message, or pick another language. High accuracy: check the NVIDIA key or remove it to use Chrome's translator |
 | Translation model not found | In *API keys & models*, click **load list** and pick another model |
-| Chat is not translated | CHZZK may have changed its page layout — update `TEXT_SEL` in `content.js` |
+| Chat is not translated | CHZZK may have changed its page layout — update `TEXT_SEL` in `content.js` (Android: `android/app/src/main/assets/chat.js`) |
+| Android: no subtitles / "Couldn't capture the sound" | Make sure the stream is playing with sound in the app, then tap ▶ CC again. If Android asks what to share, choose the **entire screen** |
+| Android: can't install the APK | Allow installing from your browser or Files app; the app needs Android 10 or newer |
 
 ## For developers
 
@@ -153,6 +188,8 @@ No. It is a desktop Chrome extension.
 | `offscreen.*`, `pcm-worklet.js` | High accuracy: tab audio capture, cut at pauses, send to Groq |
 | `audio-utils.js` | Resampling, speech chunking, WAV encoding, hallucination filter |
 | `translate-utils.js` | Translation prompts and response parsing |
+| `chat-utils.js` | Which chat lines to translate and in which direction (shared with the Android app) |
+| `android/` | Android app (Java, no extra libraries except `androidx.webkit`). Build: JDK 17 + Android SDK 34, then `gradle assembleDebug` in `android/` |
 
 ## License
 

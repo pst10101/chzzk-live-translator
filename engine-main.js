@@ -157,56 +157,131 @@
   // Translation: Chrome's built-in on-device translator
   // ---------------------------------------------------------------------------
 
-  const translators = new Map(); // target -> Promise<Translator>
+  const translators = new Map(); // "source>target" -> Promise<Translator>
 
-  function createTranslator(target) {
+  function createTranslator(target, source = "ko") {
+    const key = `${source}>${target}`;
     const p = Translator.create({
-      sourceLanguage: "ko",
+      sourceLanguage: source,
       targetLanguage: target,
       monitor(m) {
-        m.addEventListener("downloadprogress", (e) => emit("download", { target, pct: Math.round(e.loaded * 100) }));
+        m.addEventListener("downloadprogress", (e) =>
+          emit("download", { target, source, pct: Math.round(e.loaded * 100) })
+        );
       },
     });
-    translators.set(target, p);
+    translators.set(key, p);
     p.then(
-      () => emit("translatorReady", { target }),
-      () => translators.delete(target)
+      () => emit("translatorReady", { target, source }),
+      () => translators.delete(key)
     );
     return p;
   }
 
-  async function getTranslator(target) {
+  async function getTranslator(target, source = "ko") {
     if (!("Translator" in self)) throw new Error("NO_TRANSLATOR_API");
-    if (translators.has(target)) return translators.get(target);
-    const avail = await Translator.availability({ sourceLanguage: "ko", targetLanguage: target });
+    const key = `${source}>${target}`;
+    if (translators.has(key)) return translators.get(key);
+    const avail = await Translator.availability({ sourceLanguage: source, targetLanguage: target });
     if (avail === "unavailable") throw new Error("LANG_UNAVAILABLE");
     if (avail === "downloadable" && !navigator.userActivation?.isActive) throw new Error("NEEDS_CLICK");
     try {
-      return await createTranslator(target);
+      return await createTranslator(target, source);
     } catch (e) {
       throw new Error(e?.name === "NotAllowedError" ? "NEEDS_CLICK" : e?.message || "TRANSLATOR_FAILED");
     }
   }
 
   // Called straight from a click so Chrome allows the one-time language pack download.
-  function prepare(target) {
+  function prepare(target, source = "ko") {
     if (!("Translator" in self)) return emit("error", { code: "NO_TRANSLATOR_API" });
-    if (translators.has(target)) return;
-    createTranslator(target).catch((e) =>
+    if (translators.has(`${source}>${target}`)) return;
+    createTranslator(target, source).catch((e) =>
       emit("error", { code: e?.name === "NotAllowedError" ? "NEEDS_CLICK" : "TRANSLATOR_FAILED" })
     );
   }
 
+  // ---------- language detection (foreign chat → Korean) ----------
+
+  let detectorP = null;
+  function getDetector() {
+    if (!("LanguageDetector" in self)) return Promise.resolve(null);
+    if (!detectorP) {
+      detectorP = (async () => {
+        const avail = await LanguageDetector.availability();
+        if (avail === "unavailable") return null;
+        if (avail !== "available" && !navigator.userActivation?.isActive) return null; // needs a click to download
+        return LanguageDetector.create();
+      })().catch(() => null);
+      detectorP.then((d) => {
+        if (!d) detectorP = null; // try again later (e.g. after a click)
+      });
+    }
+    return detectorP;
+  }
+
+  // Language by script, no model needed (same as chat-utils.js scriptLang — that file runs in the other world).
+  function SCRIPT_LANG(text) {
+    if (/[\u3040-\u30ff\u31f0-\u31ff\uff66-\uff9f]/.test(text)) return "ja";
+    if (/[\u4e00-\u9fff\u3400-\u4dbf]/.test(text)) return "zh";
+    if (/[\u0400-\u04ff]/.test(text)) return "ru";
+    if (/[\u0e00-\u0e7f]/.test(text)) return "th";
+    if (/[\u0600-\u06ff]/.test(text)) return "ar";
+    if (/[\u0900-\u097f]/.test(text)) return "hi";
+    if (/[\u0370-\u03ff]/.test(text)) return "el";
+    return null;
+  }
+
+  async function detectLang(text) {
+    const byScript = SCRIPT_LANG(text);
+    if (byScript) return byScript;
+    const d = await getDetector();
+    if (d) {
+      try {
+        const [top] = await d.detect(text);
+        if (top && top.confidence >= 0.5 && top.detectedLanguage && top.detectedLanguage !== "und") {
+          return top.detectedLanguage.split("-")[0] === "zh" ? top.detectedLanguage : top.detectedLanguage.split("-")[0];
+        }
+      } catch {}
+    }
+    return "en"; // short Latin-script chat on CHZZK is mostly English
+  }
+
+  const askedPairs = new Set();
+
   // Subtitles go first; chat is translated one message at a time behind them.
   let chatChain = Promise.resolve();
 
-  async function translateTexts(texts, target) {
-    const tr = await getTranslator(target);
+  async function translateTexts(texts, target, source = "ko") {
+    if (source !== "auto") {
+      const tr = await getTranslator(target, source);
+      const out = [];
+      for (const t of texts) {
+        try {
+          out.push((await tr.translate(t)).trim());
+        } catch {
+          out.push(null);
+        }
+      }
+      return out;
+    }
+    // Each message may be in a different language.
+    if (!("Translator" in self)) throw new Error("NO_TRANSLATOR_API");
     const out = [];
     for (const t of texts) {
+      const src = await detectLang(t);
+      if (src === target || src === "ko") {
+        out.push(null);
+        continue;
+      }
       try {
+        const tr = await getTranslator(target, src);
         out.push((await tr.translate(t)).trim());
-      } catch {
+      } catch (e) {
+        if (e.message === "NEEDS_CLICK" && !askedPairs.has(src)) {
+          askedPairs.add(src);
+          emit("needsPair", { source: src, target });
+        }
         out.push(null);
       }
     }
@@ -214,7 +289,7 @@
   }
 
   function handleTranslate(msg) {
-    const run = () => translateTexts(msg.texts, msg.target);
+    const run = () => translateTexts(msg.texts, msg.target, msg.source || "ko");
     let job;
     if (msg.priority) {
       job = run();
@@ -245,7 +320,9 @@
         stopSpeech();
         break;
       case "prepareTranslator":
-        prepare(msg.target);
+        prepare(msg.target, msg.source || "ko");
+        if (msg.source && msg.source !== "ko") askedPairs.delete(msg.source);
+        getDetector(); // also fetch the language detector while we have the click
         break;
       case "translate":
         handleTranslate(msg);

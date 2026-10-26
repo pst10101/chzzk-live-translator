@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="btn_stop">중지</string>
+    <string name="notif_channel">실시간 번역</string>
+    <string name="notif_text">방송 소리로 자막을 만드는 중…</string>
+
+    <string name="st_listening">듣는 중… 말하고 몇 초 뒤에 자막이 나와요</string>
+    <string name="st_stopped">자막 중지됨</string>
+    <string name="st_capture_failed">소리를 캡처하지 못했어요 (%1$s)</string>
+    <string name="st_capture_denied">화면/오디오 캡처가 허용되지 않았어요</string>
+    <string name="st_need_mic">자막을 만들려면 오디오 캡처 권한이 필요해요</string>
+    <string name="st_no_groq">설정(⚙)에서 무료 Groq API 키를 넣어 주세요</string>
+    <string name="st_bad_groq">Groq API 키가 올바르지 않아요 — 설정을 확인해 주세요</string>
+    <string name="st_groq_quota">Groq 무료 음성 한도를 다 썼어요 — %1$s에 다시 시작해요</string>
+    <string name="st_groq_wait">음성 한도 도달 — %1$d초 후 다시 시작</string>
+    <string name="st_speech_error">음성 인식 서버 오류 (%1$d)</string>
+    <string name="st_network">네트워크 문제 — 다시 시도 중</string>
+    <string name="st_tr_busy">번역 한도 도달 — 잠시 한국어로 표시해요</string>
+    <string name="st_tr_error">번역 오류 (%1$d)</string>
+    <string name="st_old_webview">이 폰의 WebView가 오래돼서 채팅 번역을 쓸 수 없어요 — Play 스토어에서 \"Android System WebView\"를 업데이트해 주세요</string>
+
+    <string name="set_title">설정</string>
+    <string name="set_intro">자막에는 무료 Groq API 키가 필요해요(카드 등록 없음). 키는 이 폰에만 저장되고 Groq / NVIDIA로만 전송돼요.</string>
+    <string name="set_groq">Groq API 키 (필수)</string>
+    <string name="set_groq_get">무료 Groq 키 받기 ↗</string>
+    <string name="set_nv">NVIDIA API 키 (선택 — 슬랭 번역이 더 좋아요)</string>
+    <string name="set_nv_get">무료 NVIDIA 키 받기 ↗</string>
+    <string name="set_lang">번역할 언어</string>
+    <string name="set_pace">Whisper 타이밍</string>
+    <string name="pace_allday">종일 (약 15초 지연, 하루 약 8시간)</string>
+    <string name="pace_fast">빠르게 (5–10초 지연, 하루 3–5시간)</string>
+    <string name="set_chat">채팅 번역 (한국어 → 선택한 언어)</string>
+    <string name="set_chat_ko">외국어 채팅 → 한국어</string>
+    <string name="set_orig">자막 아래에 한국어 원문 표시</string>
+    <string name="set_font">자막 크기</string>
+    <string name="set_glossary">이름·용어 (한 줄에 하나, 예: 멤버이름 = Member Name)</string>
+    <string name="set_privacy">작동 방식: ▶ CC를 누르면 안드로이드가 화면 녹화/전송 허용을 물어봐요. 앱은 이걸 방송 소리를 듣는 데만 쓰고, 화면은 녹화하거나 어디로도 보내지 않아요. 자막이 켜져 있는 동안 다른 앱의 소리도 잡힐 수 있으니 다 보면 ■ CC를 눌러 꺼 주세요.</string>
+    <string name="btn_save">저장</string>
+    <string name="btn_cancel">취소</string>
+</resources>

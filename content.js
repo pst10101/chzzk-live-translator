@@ -10,6 +10,7 @@
     engine: "free",
     targetLang: "English",
     chatEnabled: true,
+    chatToKorean: false,
     subsShowOriginal: true,
     subFontSize: 24,
     subPos: null,
@@ -29,8 +30,11 @@
     if ("targetLang" in changes || "engine" in changes) {
       cache.clear();
       translatorBlocked = "";
+      koBlocked = "";
     }
-    if ("chatEnabled" in changes && cfg.chatEnabled) markExistingChat();
+    if (("chatEnabled" in changes && cfg.chatEnabled) || ("chatToKorean" in changes && cfg.chatToKorean)) {
+      markExistingChat();
+    }
     if ("subsShowOriginal" in changes) lines.forEach(renderLine);
     if ("engine" in changes && cfg.engine !== "free" && freeRunning) toEngine({ cmd: "stopSpeech" });
     applyFont();
@@ -350,7 +354,7 @@
     window.dispatchEvent(new CustomEvent("ctr:to-engine", { detail: JSON.stringify(msg) }));
   }
 
-  function engineTranslate(texts, target, priority) {
+  function engineTranslate(texts, target, priority, source = "ko") {
     return new Promise((resolve, reject) => {
       const id = ++reqSeq;
       const timer = setTimeout(() => {
@@ -358,7 +362,7 @@
         reject(new Error("TIMEOUT"));
       }, 60000);
       waiters.set(id, { resolve, reject, timer });
-      toEngine({ cmd: "translate", id, texts, target, priority });
+      toEngine({ cmd: "translate", id, texts, target, source, priority });
     });
   }
 
@@ -428,12 +432,26 @@
         break;
       }
       case "download":
-        showStatus(`Downloading ${cfg.targetLang} translator… ${m.pct}%`, "info");
+        showStatus(`Downloading ${m.target === "ko" ? "Korean" : cfg.targetLang} translator… ${m.pct}%`, "info");
         break;
       case "translatorReady":
-        translatorBlocked = "";
         lastWarn = "";
-        showStatus(`${cfg.targetLang} translator ready`, "info");
+        if (m.target === "ko") {
+          koBlocked = "";
+          showStatus(`Translator into Korean ready (${m.source})`, "info");
+        } else {
+          translatorBlocked = "";
+          showStatus(`${cfg.targetLang} translator ready`, "info");
+        }
+        break;
+      case "needsPair":
+        // Foreign chat → Korean: Chrome needs one click to download this language pair.
+        showStatus(`Click here to download the free ${m.source} → Korean chat translator (one time)`, "action", {
+          action: () => {
+            toEngine({ cmd: "prepareTranslator", target: m.target, source: m.source });
+            showStatus("Downloading translator…", "info");
+          },
+        });
         break;
       case "error":
         if (m.code === "NOT_ALLOWED") {
@@ -590,6 +608,8 @@
 
   // =====================================================================
   // Chat translation
+  //   "out": Korean messages → your language (Translate chat)
+  //   "ko":  messages in other languages → Korean (Foreign chat → 한국어)
   // =====================================================================
 
   // Current CHZZK layout uses generated "_text_xxxx" classes inside role="log";
@@ -600,15 +620,17 @@
     '[class^="live_chatting_donation_message_text__"]',
   ].join(",");
   const OURS = "ctr-chat-tr";
-  const HANGUL = /[ㄱ-ㆎ가-힣]/;
-  const LAUGH = /^[ㅋㅎ\s.!?~]+$/;
-  const CRY = /^[ㅠㅜ\s.!?~]+$/;
   const MAX_BATCH = 30;
   const FLUSH_MS = 2000;
+  const Chat = globalThis.CtrChat;
 
-  const cache = new Map();
+  const cache = new Map(); // "dir\u0001text" -> translation
   const pending = [];
   let inflight = false;
+  let koBlocked = ""; // reason the free translator can't translate into Korean
+
+  const chatOn = () => cfg.chatEnabled || cfg.chatToKorean;
+  const cacheKey = (dir, unit) => `${dir}\u0001${unit}`;
 
   function cacheSet(k, v) {
     cache.set(k, v);
@@ -624,76 +646,40 @@
     return s.replace(/\s+/g, " ").trim();
   }
 
-  function localTranslation(text) {
-    const english = /^(english|en)$/i.test(cfg.targetLang || "");
-    if (LAUGH.test(text)) return english ? "lol" : "ㅋㅋ";
-    if (CRY.test(text)) return "T_T";
-    return null;
-  }
-
-  function render(el, tr, src, count = 1) {
+  function render(el, tr, src, count = 1, dir = "out") {
     el.querySelector(`:scope > .${OURS}`)?.remove();
     if (!tr || tr === src) return;
     const span = document.createElement("span");
     span.className = OURS;
+    if (dir === "ko") span.classList.add("ctr-to-ko");
     span.textContent = count > 1 ? `${tr} ×${count}` : tr;
     el.appendChild(span);
   }
 
-  /**
-   * Spam like "변깃물🚽호로록은💦 변깃물🚽호로록은💦 …" or "뿌👻‼️뿌👻‼️…" is the same phrase repeated:
-   * translate it once and show "×N". Very short repeats ("네네네") are left as they are.
-   */
-  function collapseRepeats(text) {
-    const norm = text.replace(/\s+/g, " ").trim();
-    let best = { unit: norm, count: 1 };
-    for (const cand of [norm, `${norm} `]) {
-      const ch = Array.from(cand);
-      const n = ch.length;
-      if (n < 4) continue;
-      const pi = new Array(n).fill(0);
-      for (let i = 1; i < n; i++) {
-        let k = pi[i - 1];
-        while (k > 0 && ch[i] !== ch[k]) k = pi[k - 1];
-        if (ch[i] === ch[k]) k++;
-        pi[i] = k;
-      }
-      const period = n - pi[n - 1];
-      const count = Math.floor(n / period);
-      const unit = ch.slice(0, period).join("").trim();
-      if (count >= 2 && count > best.count && unit && (Array.from(unit).length >= 3 || n >= 30)) {
-        best = { unit, count };
-      }
-    }
-    if (Array.from(best.unit).length > 200) best.unit = Array.from(best.unit).slice(0, 200).join("") + "…";
-    return best;
-  }
-
   function handleTextEl(el) {
-    if (!cfg.chatEnabled) return;
+    if (!chatOn()) return;
     if (el.closest("button")) return; // nicknames share the "_text_" class but live inside a button
     const text = messageText(el);
     if (el.dataset.ctrSrc === text) return; // already handled
     el.dataset.ctrSrc = text;
     el.querySelector(`:scope > .${OURS}`)?.remove();
-    if (!text || !HANGUL.test(text)) return;
 
-    const local = localTranslation(text);
-    if (local) {
-      if (local !== text) render(el, local, text);
+    const c = Chat.classify(text, {
+      fromKorean: cfg.chatEnabled,
+      toKorean: cfg.chatToKorean,
+      english: /^(english|en)$/i.test(cfg.targetLang || ""),
+    });
+    if (!c) return;
+    if (c.local) {
+      render(el, c.local, c.unit, c.count, Chat.HANGUL.test(text) ? "out" : "ko");
       return;
     }
-    const { unit, count } = collapseRepeats(text);
-    const unitLocal = count > 1 ? localTranslation(unit) : null;
-    if (unitLocal) {
-      render(el, unitLocal, unit, count);
+    const key = cacheKey(c.dir, c.unit);
+    if (cache.has(key)) {
+      render(el, cache.get(key), c.unit, c.count, c.dir);
       return;
     }
-    if (cache.has(unit)) {
-      render(el, cache.get(unit), unit, count);
-      return;
-    }
-    pending.push({ el, text, key: unit, count });
+    pending.push({ el, text, dir: c.dir, unit: c.unit, count: c.count });
     if (pending.length >= MAX_BATCH) flush();
   }
 
@@ -707,53 +693,75 @@
   // Chrome's built-in translator is used in Free mode, and in High accuracy mode when there is no NVIDIA key.
   const useChromeTranslator = () => cfg.engine === "free" || !cfg.nvidiaKey;
 
-  function chatReady() {
-    if (!cfg.chatEnabled) return false;
-    if (useChromeTranslator()) return !!engineHello?.hasTranslator && !translatorBlocked && !!langCode(cfg.targetLang);
+  function chatReady(dir) {
+    if (dir === "out" ? !cfg.chatEnabled : !cfg.chatToKorean) return false;
+    if (useChromeTranslator()) {
+      if (!engineHello?.hasTranslator) return false;
+      return dir === "out" ? !translatorBlocked && !!langCode(cfg.targetLang) : !koBlocked;
+    }
     return !!cfg.nvidiaKey;
   }
 
-  async function translateBatch(texts) {
+  async function translateBatch(texts, dir) {
     if (useChromeTranslator()) {
       try {
-        return { ok: true, translations: await engineTranslate(texts, langCode(cfg.targetLang), false) };
+        const out =
+          dir === "ko"
+            ? await engineTranslate(texts, "ko", false, "auto")
+            : await engineTranslate(texts, langCode(cfg.targetLang), false);
+        return { ok: true, translations: out };
       } catch (e) {
-        handleTranslatorError(e.message);
+        if (dir === "ko") {
+          if (e.message === "NO_TRANSLATOR_API") koBlocked = e.message;
+        } else {
+          handleTranslatorError(e.message);
+        }
         return { ok: false, error: e.message, quiet: true };
       }
     }
-    return chrome.runtime.sendMessage({ target: "background", type: "translateChat", texts });
+    return chrome.runtime.sendMessage({ target: "background", type: "translateChat", texts, dir });
+  }
+
+  async function flushDir(dir) {
+    const mine = [];
+    for (let i = pending.length - 1; i >= 0; i--) if (pending[i].dir === dir) mine.unshift(...pending.splice(i, 1));
+    if (!mine.length) return;
+    if (dir === "out" ? !cfg.chatEnabled : !cfg.chatToKorean) return; // switched off meanwhile: drop
+    if (!chatReady(dir)) {
+      // Not ready yet (e.g. translator downloading): keep only the newest few.
+      pending.push(...mine.slice(-MAX_BATCH));
+      return;
+    }
+    let items = mine.filter((p) => p.el.isConnected && p.el.dataset.ctrSrc === p.text);
+    if (items.length > MAX_BATCH) items = items.slice(-MAX_BATCH); // fast chat: newest messages win
+    if (!items.length) return;
+    const texts = [...new Set(items.map((i) => i.unit))];
+
+    const res = await translateBatch(texts, dir);
+    if (res?.ok) {
+      texts.forEach((t, i) => res.translations[i] && cacheSet(cacheKey(dir, t), res.translations[i]));
+      for (const it of items) {
+        const tr = cache.get(cacheKey(dir, it.unit));
+        if (tr && it.el.dataset.ctrSrc === it.text) render(it.el, tr, it.unit, it.count, dir);
+      }
+    } else if (res?.error === "BUSY" || res?.error === "NEEDS_CLICK") {
+      pending.unshift(...items.slice(-10));
+    } else if (res?.error && !res.quiet && res.error !== "NO_NVIDIA_KEY") {
+      warnOnce(res.message || `Chat translation error (${res.error})`);
+    }
   }
 
   async function flush() {
     if (inflight || !pending.length) return;
-    if (!chatReady()) {
-      if (pending.length > MAX_BATCH) pending.splice(0, pending.length - MAX_BATCH);
-      return;
-    }
-    let items = pending.splice(0).filter((p) => p.el.isConnected && p.el.dataset.ctrSrc === p.text);
-    if (items.length > MAX_BATCH) items = items.slice(-MAX_BATCH); // fast chat: newest messages win
-    if (!items.length) return;
-    const texts = [...new Set(items.map((i) => i.key))];
-
     inflight = true;
     try {
-      const res = await translateBatch(texts);
-      if (res?.ok) {
-        texts.forEach((t, i) => res.translations[i] && cacheSet(t, res.translations[i]));
-        for (const it of items) {
-          const tr = cache.get(it.key);
-          if (tr && it.el.dataset.ctrSrc === it.text) render(it.el, tr, it.key, it.count);
-        }
-      } else if (res?.error === "BUSY" || res?.error === "NEEDS_CLICK") {
-        pending.unshift(...items.slice(-10));
-      } else if (res?.error && !res.quiet && res.error !== "NO_NVIDIA_KEY") {
-        warnOnce(res.message || `Chat translation error (${res.error})`);
-      }
+      await flushDir("out");
+      await flushDir("ko");
     } catch {
       /* extension reloaded or worker asleep — next flush retries */
     } finally {
       inflight = false;
+      if (pending.length > MAX_BATCH * 2) pending.splice(0, pending.length - MAX_BATCH * 2);
     }
   }
 
@@ -790,7 +798,7 @@
   }
 
   new MutationObserver((mutations) => {
-    if (!cfg.chatEnabled) return;
+    if (!chatOn()) return;
     for (const m of mutations) {
       if (m.type === "characterData") {
         if (m.target.parentElement) changed.add(m.target.parentElement);

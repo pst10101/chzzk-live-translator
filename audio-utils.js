@@ -226,6 +226,21 @@ const HALLUCINATIONS = [
   /다음\s*(영상|시간)에서\s*(만나요|뵙겠습니다)/,
 ];
 
+/**
+ * Whisper sometimes just repeats its prompt (our list of names) over music or silence.
+ * True when the text is a comma-separated list made mostly of prompt terms.
+ */
+export function isPromptEcho(text, prompt) {
+  if (!text || !prompt) return false;
+  const terms = new Set(String(prompt).split(/[,，、]/).map((s) => s.trim()).filter(Boolean));
+  const parts = String(text)
+    .split(/[,，、]/)
+    .map((s) => s.trim().replace(/[.!?~…]+$/, ""))
+    .filter(Boolean);
+  if (parts.length < 4) return false;
+  return parts.filter((p) => terms.has(p)).length / parts.length >= 0.6;
+}
+
 export function isHallucination(text) {
   return HALLUCINATIONS.some((re) => re.test(text));
 }

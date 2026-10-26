@@ -7,3 +7,4 @@ local.properties
 .idea/
 *.iml
 app/src/main/assets/chat-utils.js
+app/src/main/assets/glossary/

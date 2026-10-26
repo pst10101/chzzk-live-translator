@@ -426,9 +426,10 @@ public class MainActivity extends Activity implements Bus.Listener {
             JSONObject reply = new JSONObject();
             try {
                 reply.put("type", "trDone").put("id", id);
+                String glossary = Glossary.effective(MainActivity.this, prefs);
                 String system = "ko".equals(dir)
-                        ? TranslateUtil.chatToKoreanSystem(prefs.glossary())
-                        : TranslateUtil.chatSystem(prefs.targetLang(), prefs.glossary());
+                        ? TranslateUtil.chatToKoreanSystem(glossary)
+                        : TranslateUtil.chatSystem(prefs.targetLang(), glossary);
                 String content = Llm.complete(prefs, true, system, TranslateUtil.jsonArray(texts),
                         Math.min(4000, 100 + texts.size() * 80));
                 List<String> out = TranslateUtil.parseChatResponse(content, texts.size());
@@ -761,6 +762,12 @@ public class MainActivity extends Activity implements Bus.Listener {
         });
         p.addView(font, new LinearLayout.LayoutParams(-1, -2));
 
+        Switch preset = toggleRow(p, R.string.set_preset, prefs.stelPreset());
+        TextView presetNote = new TextView(this);
+        presetNote.setText(R.string.set_preset_note);
+        presetNote.setTextSize(12);
+        p.addView(presetNote);
+
         label(p, R.string.set_glossary);
         EditText gl = field(p, prefs.glossary(), false, 3);
 
@@ -786,6 +793,7 @@ public class MainActivity extends Activity implements Bus.Listener {
                             .putBoolean("subsShowOriginal", orig.isChecked())
                             .putInt("subFontSize", font.getProgress() + 12)
                             .putString("glossary", gl.getText().toString())
+                            .putBoolean("stelPreset", preset.isChecked())
                             .apply();
                     sendCfg();
                     renderSubs();

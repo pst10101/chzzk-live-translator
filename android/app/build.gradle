@@ -10,8 +10,8 @@ android {
         applicationId 'io.github.pst10101.chzzktranslator'
         minSdk 29
         targetSdk 34
-        versionCode 2
-        versionName '1.1.0'
+        versionCode 3
+        versionName '1.2.0'
         // Only our own UI languages (androidx would otherwise bundle ~90 locales)
         resourceConfigurations += ['en', 'ko', 'ja']
     }
@@ -42,4 +42,9 @@ tasks.register('copySharedJs', Copy) {
     from("${rootDir}/../chat-utils.js")
     into("${projectDir}/src/main/assets")
 }
-preBuild.dependsOn copySharedJs
+// The built-in StelLive glossary is shared with the extension too.
+tasks.register('copyGlossary', Copy) {
+    from("${rootDir}/../glossary") { include 'stellive-*.txt' }
+    into("${projectDir}/src/main/assets/glossary")
+}
+preBuild.dependsOn copySharedJs, copyGlossary

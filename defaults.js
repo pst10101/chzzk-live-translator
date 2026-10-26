@@ -8,6 +8,7 @@ export const DEFAULTS = {
   speechPace: "allday", // "allday" ≈ 8 h of Whisper a day (~15 s delay), "fast" ≈ 3–5 h (~5–10 s)
   llmModel: "meta/llama-3.3-70b-instruct",
   glossary: "",
+  stelPreset: true, // built-in StelLive names & memes (glossary/stellive-*.txt), added to your own terms
   chatEnabled: true, // Korean chat → targetLang
   chatToKorean: false, // chat in other languages → Korean
   subsShowOriginal: true,

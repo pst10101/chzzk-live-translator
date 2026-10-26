@@ -6,6 +6,7 @@ import {
   Chunker,
   encodeWav,
   cleanTranscript,
+  isPromptEcho,
   parseRetryAfter,
   PACES,
   TARGET_RATE,
@@ -193,5 +194,5 @@ async function transcribe(samples, cfg) {
   }
 
   const text = cleanTranscript(await res.json());
-  if (text) toBg({ type: "transcript", text });
+  if (text && !isPromptEcho(text, cfg.whisperPrompt)) toBg({ type: "transcript", text });
 }

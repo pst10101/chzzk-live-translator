@@ -178,9 +178,10 @@ public class CaptureService extends Service {
             return;
         }
         lastReqAt = System.currentTimeMillis();
+        String whisperPrompt = TranslateUtil.whisperPrompt(Glossary.effective(this, prefs));
         String ko;
         try {
-            ko = Net.whisper(AudioUtil.encodeWav(samples), key, TranslateUtil.whisperPrompt(prefs.glossary()));
+            ko = Net.whisper(AudioUtil.encodeWav(samples), key, whisperPrompt);
         } catch (Net.HttpError e) {
             if (e.code == 401) {
                 shutdown(getString(R.string.st_bad_groq));
@@ -202,7 +203,7 @@ public class CaptureService extends Service {
             Bus.status(getString(R.string.st_network), Bus.WARN);
             return;
         }
-        if (ko.isEmpty()) return;
+        if (ko.isEmpty() || AudioUtil.isPromptEcho(ko, whisperPrompt)) return;
         long id = seq.incrementAndGet();
         Bus.subtitle(id, ko, Llm.hasKey(prefs) ? null : "");
         ExecutorService tx = translator;
@@ -216,7 +217,7 @@ public class CaptureService extends Service {
             Bus.subtitle(id, ko, "");
             return;
         }
-        String[] pr = TranslateUtil.subtitlePrompt(ko, new ArrayList<>(context), prefs.targetLang(), prefs.glossary());
+        String[] pr = TranslateUtil.subtitlePrompt(ko, new ArrayList<>(context), prefs.targetLang(), Glossary.effective(this, prefs));
         String tr = "";
         try {
             tr = TranslateUtil.cleanSubtitle(Llm.complete(prefs, false, pr[0], pr[1], 300));

@@ -106,10 +106,15 @@
         <small>Pick a fast, non-“reasoning” model for low delay.</small>
       </label>
 
+      <label class="row switch" title="StelLive member names, fan names, greetings and memes — English or Japanese version picked automatically">
+        <span>Built-in StelLive terms</span>
+        <input id="stelPreset" type="checkbox" />
+      </label>
+
       <label class="field">
         <span class="lbl">Names &amp; terms</span>
         <textarea id="glossary" rows="4" spellcheck="false" placeholder="One per line, optional translation after =&#10;예) 멤버이름 = Member Name&#10;자주 쓰는 말 = how to translate it"></textarea>
-        <small>Helps spell names correctly and keeps translations consistent.</small>
+        <small>Helps spell names correctly and keeps translations consistent. Your terms are used before the built-in ones.</small>
       </label>
 
       <button id="test" class="secondary" type="button">Test keys</button>

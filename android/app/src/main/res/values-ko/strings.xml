@@ -33,6 +33,8 @@
     <string name="set_chat_ko">외국어 채팅 → 한국어</string>
     <string name="set_orig">자막 아래에 한국어 원문 표시</string>
     <string name="set_font">자막 크기</string>
+    <string name="set_preset">스텔라이브 용어집 내장</string>
+    <string name="set_preset_note">멤버 이름·팬네임·인사말·밈. 번역할 언어에 맞춰 영어판/일본어판이 자동으로 쓰여요. 아래 직접 적은 용어가 먼저 적용돼요.</string>
     <string name="set_glossary">이름·용어 (한 줄에 하나, 예: 멤버이름 = Member Name)</string>
     <string name="set_privacy">작동 방식: ▶ CC를 누르면 안드로이드가 화면 녹화/전송 허용을 물어봐요. 앱은 이걸 방송 소리를 듣는 데만 쓰고, 화면은 녹화하거나 어디로도 보내지 않아요. 자막이 켜져 있는 동안 다른 앱의 소리도 잡힐 수 있으니 다 보면 ■ CC를 눌러 꺼 주세요.</string>
     <string name="btn_save">저장</string>

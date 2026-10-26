@@ -7,6 +7,8 @@ import {
   parseChatResponse,
   cleanSubtitle,
   whisperPromptFrom,
+  presetGlossary,
+  mergeGlossaries,
 } from "./translate-utils.js";
 
 const NV_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
@@ -21,6 +23,25 @@ class ApiError extends Error {
     this.code = code;
     this.detail = detail;
   }
+}
+
+// ---------- glossary: your own terms + the built-in StelLive terms ----------
+
+let presetFiles = null; // Promise<{ en, ja }>
+function loadPresetFiles() {
+  if (!presetFiles) {
+    const read = (f) => fetch(chrome.runtime.getURL(f)).then((r) => (r.ok ? r.text() : "")).catch(() => "");
+    presetFiles = Promise.all([read("glossary/stellive-en.txt"), read("glossary/stellive-ja.txt")]).then(
+      ([en, ja]) => ({ en, ja })
+    );
+  }
+  return presetFiles;
+}
+
+async function glossaryFor(cfg) {
+  if (!cfg.stelPreset) return cfg.glossary;
+  const { en, ja } = await loadPresetFiles();
+  return mergeGlossaries(cfg.glossary, presetGlossary(en, ja, cfg.targetLang));
 }
 
 // ---------- messaging helpers ----------
@@ -107,7 +128,7 @@ async function startSubs(tabId, streamId) {
       model: cfg.whisperModel,
       lang: "ko",
       pace: cfg.speechPace,
-      whisperPrompt: whisperPromptFrom(cfg.glossary),
+      whisperPrompt: whisperPromptFrom(await glossaryFor(cfg)),
     })
     .catch((e) => ({ ok: false, error: String(e?.message || e) }));
 
@@ -152,7 +173,7 @@ chrome.tabs.onRemoved.addListener(async (tabId) => {
 // Settings edited while subtitles run: hand the new values to the capture page.
 chrome.storage.onChanged.addListener(async (changes, area) => {
   if (area !== "local") return;
-  if (!["groqKey", "whisperModel", "glossary", "speechPace"].some((k) => k in changes)) return;
+  if (!["groqKey", "whisperModel", "glossary", "speechPace", "stelPreset", "targetLang"].some((k) => k in changes)) return;
   if (!(await hasOffscreen())) return;
   const cfg = await getSettings();
   chrome.runtime
@@ -163,7 +184,7 @@ chrome.storage.onChanged.addListener(async (changes, area) => {
         groqKey: cfg.groqKey,
         model: cfg.whisperModel,
         pace: cfg.speechPace,
-        whisperPrompt: whisperPromptFrom(cfg.glossary),
+        whisperPrompt: whisperPromptFrom(await glossaryFor(cfg)),
       },
     })
     .catch(() => {});
@@ -271,7 +292,8 @@ async function translateSubtitle(id, text, tabId) {
   if (id < subSeq - 2) return; // newer lines are already waiting; keep subtitles live
   if (!(await nvAcquire(false, 15000))) return;
   try {
-    const messages = buildSubtitleMessages({ text, context: subCtx, lang: cfg.targetLang, glossary: cfg.glossary });
+    const glossary = await glossaryFor(cfg);
+    const messages = buildSubtitleMessages({ text, context: subCtx, lang: cfg.targetLang, glossary });
     const tr = cleanSubtitle(await nvChat(cfg, messages, 300));
     subCtx = [...subCtx, { ko: text, tr }].slice(-3);
     if (tr) sendTab(tabId, { type: "subtitleTr", id, tr });
@@ -287,10 +309,11 @@ async function translateChat(texts, dir = "out") {
   if (!Array.isArray(texts) || !texts.length) return { ok: true, translations: [] };
   if (!(await nvAcquire(true, 4000))) return { ok: false, error: "BUSY" };
   try {
+    const glossary = await glossaryFor(cfg);
     const messages =
       dir === "ko"
-        ? buildChatToKoreanMessages({ texts, glossary: cfg.glossary })
-        : buildChatMessages({ texts, lang: cfg.targetLang, glossary: cfg.glossary });
+        ? buildChatToKoreanMessages({ texts, glossary })
+        : buildChatMessages({ texts, lang: cfg.targetLang, glossary });
     const content = await nvChat(cfg, messages, Math.min(4000, 100 + texts.length * 80));
     return { ok: true, translations: parseChatResponse(content, texts.length) };
   } catch (e) {

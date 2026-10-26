@@ -23,6 +23,8 @@ public final class Prefs {
     public boolean showOriginal() { return sp.getBoolean("subsShowOriginal", true); }
     public int fontSize() { return sp.getInt("subFontSize", 18); }
     public String glossary() { return sp.getString("glossary", ""); }
+    /** Built-in StelLive names & memes (assets/glossary/stellive-*.txt). */
+    public boolean stelPreset() { return sp.getBoolean("stelPreset", true); }
     public boolean askedNotifications() { return sp.getBoolean("askedNotif", false); }
     public float pillY() { return sp.getFloat("pillY", 0.62f); }
 

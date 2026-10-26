@@ -33,6 +33,8 @@
     <string name="set_chat_ko">外国語チャット → 한국어（韓国語）</string>
     <string name="set_orig">字幕の下に韓国語の原文を表示</string>
     <string name="set_font">字幕の大きさ</string>
+    <string name="set_preset">ステライブ用語集（内蔵）</string>
+    <string name="set_preset_note">メンバー名・ファンネーム・挨拶・ミーム。翻訳先の言語に合わせて英語版／日本語版が自動で使われます。下に自分で書いた用語が優先されます。</string>
     <string name="set_glossary">名前・用語（1行に1つ。例：멤버이름 = メンバー名）</string>
     <string name="set_privacy">仕組み：▶ CC を押すと、Android が画面の録画／キャストの許可を求めます。アプリは配信の音声を聞くためだけに使い、画面を録画したりどこかへ送ったりはしません。字幕がオンの間は他のアプリの音も拾うことがあるので、見終わったら ■ CC で止めてください。</string>
     <string name="btn_save">保存</string>

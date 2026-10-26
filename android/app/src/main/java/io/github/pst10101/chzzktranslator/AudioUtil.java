@@ -251,6 +251,21 @@ public final class AudioUtil {
             Pattern.compile("다음\\s*(영상|시간)에서\\s*(만나요|뵙겠습니다)"),
     };
 
+    /** Whisper sometimes just repeats its prompt (our list of names) over music: a comma list of prompt terms. */
+    public static boolean isPromptEcho(String text, String prompt) {
+        if (text == null || prompt == null || text.isEmpty() || prompt.isEmpty()) return false;
+        java.util.Set<String> terms = new java.util.HashSet<>();
+        for (String t : prompt.split("[,，、]")) if (!t.trim().isEmpty()) terms.add(t.trim());
+        int n = 0, hits = 0;
+        for (String part : text.split("[,，、]")) {
+            String p = part.trim().replaceAll("[.!?~…]+$", "");
+            if (p.isEmpty()) continue;
+            n++;
+            if (terms.contains(p)) hits++;
+        }
+        return n >= 4 && hits >= 0.6 * n;
+    }
+
     public static boolean isHallucination(String t) {
         for (Pattern p : HALLUCINATIONS) if (p.matcher(t).find()) return true;
         return false;

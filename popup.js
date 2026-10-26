@@ -39,6 +39,7 @@ const els = {
   whisperModel: $("whisperModel"),
   llmModel: $("llmModel"),
   glossary: $("glossary"),
+  stelPreset: $("stelPreset"),
   setup: $("setup"),
   usage: $("usage"),
   freeNote: $("freeNote"),
@@ -106,6 +107,7 @@ async function loadSettings() {
   els.speechPace.value = s.speechPace;
   els.llmModel.value = s.llmModel;
   els.glossary.value = s.glossary;
+  els.stelPreset.checked = s.stelPreset;
 
   if (engine === "keys" && (!s.groqKey || !s.nvidiaKey)) els.setup.open = true;
   showEngine();
@@ -152,6 +154,7 @@ els.llmModel.addEventListener("input", () =>
   saveSoon({ llmModel: els.llmModel.value.trim() || DEFAULTS.llmModel })
 );
 els.glossary.addEventListener("input", () => saveSoon({ glossary: els.glossary.value }));
+els.stelPreset.addEventListener("change", () => save({ stelPreset: els.stelPreset.checked }));
 
 // ---------- state ----------
 

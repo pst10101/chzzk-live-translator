@@ -17,6 +17,7 @@ A Chrome extension — and now an **Android app (beta)** — that turns Korean s
 - Live subtitles over the video player, in English, Japanese, Chinese, Spanish and more
 - Chat translation under each message (nicknames are left alone; copy-paste spam is translated once and shown as "×N")
 - **Foreign chat → 한국어**: chat written in English, Japanese, Chinese and other languages can be translated into Korean — handy for Korean viewers and streamers (off by default)
+- **Built-in StelLive terms**: member names, fan names, greetings and memes in an English and a Japanese version, so Whisper spells names right and translations stay consistent (High accuracy mode and the Android app; on by default)
 - Works on live streams and replays
 - [Android app (beta)](#android-app-beta) with the same subtitles and chat translation
 - Two modes:
@@ -142,6 +143,7 @@ Free tier limit: about 40 requests per minute. Subtitles are translated first; i
   ```
 
   This helps Whisper spell names correctly and keeps translations consistent.
+- **Built-in StelLive terms** (switch under *API keys & models*, on by default) adds StelLive member names, fan names, greetings and memes automatically: the Japanese version when you translate into Japanese, the English version otherwise (for other languages only the official name spellings are fixed). Your own *Names & terms* are used first. Turn it off when you watch other streamers. The lists are in [`glossary/`](glossary).
 - **Move the subtitles**: drag them anywhere on the video; the spot is remembered. In the popup, **Subtitle position → move** shows a sample line to drag while nobody is talking, and **reset** puts them back at the bottom.
 - **Subtitle size** and **Show Korean under subtitles** are in the popup.
 
@@ -188,6 +190,7 @@ On Android, yes — install the [Android app (beta)](#android-app-beta). iPhone 
 | `offscreen.*`, `pcm-worklet.js` | High accuracy: tab audio capture, cut at pauses, send to Groq |
 | `audio-utils.js` | Resampling, speech chunking, WAV encoding, hallucination filter |
 | `translate-utils.js` | Translation prompts and response parsing |
+| `glossary/` | Built-in StelLive terms (`stellive-en.txt`, `stellive-ja.txt`), shared with the Android app |
 | `chat-utils.js` | Which chat lines to translate and in which direction (shared with the Android app) |
 | `android/` | Android app (Java, no extra libraries except `androidx.webkit`). Build: JDK 17 + Android SDK 34, then `gradle assembleDebug` in `android/` |
 

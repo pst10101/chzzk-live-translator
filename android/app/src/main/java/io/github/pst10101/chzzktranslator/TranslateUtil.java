@@ -21,7 +21,11 @@ public final class TranslateUtil {
     public static List<Entry> parseGlossary(String text) {
         List<Entry> out = new ArrayList<>();
         if (text == null) return out;
-        for (String raw : text.split("[\\n,]")) {
+        StringBuilder noComments = new StringBuilder();
+        for (String line : text.split("\n")) {
+            if (!line.trim().startsWith("#")) noComments.append(line).append('\n');
+        }
+        for (String raw : noComments.toString().split("[\\n,]")) {
             String e = raw.trim();
             if (e.isEmpty()) continue;
             String[] parts = e.split("=|→|->", 2);
@@ -30,6 +34,45 @@ public final class TranslateUtil {
             if (!ko.isEmpty()) out.add(new Entry(ko, tr));
         }
         return out;
+    }
+
+    /**
+     * Built-in StelLive glossary for a target language (same rules as the extension):
+     * Japanese → the Japanese file, English → the English file, other languages → names with their
+     * official romanization and only the Korean spelling of everything else.
+     */
+    public static String presetGlossary(String enText, String jaText, String lang) {
+        String l = lang == null ? "" : lang.trim().toLowerCase(java.util.Locale.ROOT);
+        boolean ja = l.startsWith("japanese") || l.startsWith("ja") || l.startsWith("日本語");
+        boolean en = l.equals("english") || l.equals("en");
+        String src = ja ? jaText : enText;
+        StringBuilder out = new StringBuilder();
+        String section = "";
+        for (String raw : (src == null ? "" : src).split("\n")) {
+            String line = raw.trim();
+            if (line.isEmpty()) continue;
+            if (line.startsWith("#")) {
+                section = line.substring(1).trim().toLowerCase(java.util.Locale.ROOT);
+                continue;
+            }
+            if (out.length() > 0) out.append('\n');
+            out.append(ja || en || section.equals("names") ? line : line.split("=")[0].trim());
+        }
+        return out.toString();
+    }
+
+    /** The user's own terms first (they win on duplicates), then the built-in ones. */
+    public static String mergeGlossaries(String user, String preset) {
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        StringBuilder out = new StringBuilder();
+        for (String text : new String[]{user, preset}) {
+            for (Entry e : parseGlossary(text)) {
+                if (!seen.add(e.ko)) continue;
+                if (out.length() > 0) out.append('\n');
+                out.append(e.tr.isEmpty() ? e.ko : e.ko + " = " + e.tr);
+            }
+        }
+        return out.toString();
     }
 
     /** Korean spellings only (max 300 chars) — Whisper uses this as a spelling hint. */

@@ -36,6 +36,8 @@
     <string name="set_chat_ko">Foreign chat → 한국어 (Korean)</string>
     <string name="set_orig">Show Korean under subtitles</string>
     <string name="set_font">Subtitle size</string>
+    <string name="set_preset">Built-in StelLive terms</string>
+    <string name="set_preset_note">Member names, fan names, greetings and memes — the English or Japanese version is picked from \"Translate into\". Your own terms below are used first.</string>
     <string name="set_glossary">Names &amp; terms (one per line, e.g. 멤버이름 = Member Name)</string>
     <string name="set_privacy">How it works: when you tap ▶ CC, Android asks to allow screen recording / casting. The app only uses it to hear the stream\'s sound — the screen is never recorded or sent anywhere. While subtitles are on, sound from other apps can be captured too, so tap ■ CC when you\'re done.</string>
     <string name="btn_save">Save</string>

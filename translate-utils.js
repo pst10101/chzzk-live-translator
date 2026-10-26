@@ -3,6 +3,9 @@
 /** "아이네 = Ine, 징버거" (commas or new lines) -> [{ ko: "아이네", tr: "Ine" }, { ko: "징버거", tr: "" }] */
 export function parseGlossary(text) {
   return String(text || "")
+    .split("\n")
+    .filter((l) => !l.trim().startsWith("#")) // comment lines
+    .join("\n")
     .split(/[\n,]/)
     .map((s) => s.trim())
     .filter(Boolean)
@@ -23,6 +26,44 @@ export function whisperPromptFrom(glossaryText) {
     out = next;
   }
   return out;
+}
+
+/**
+ * Built-in StelLive glossary for a target language.
+ * en/ja = contents of glossary/stellive-en.txt and -ja.txt ("# section" lines start a section).
+ * Japanese → the Japanese file; English → the English file; any other language → names with their
+ * official romanization, and only the Korean spelling of everything else (the model translates those).
+ */
+export function presetGlossary(enText, jaText, lang) {
+  const l = String(lang || "").trim().toLowerCase();
+  const ja = /^(japanese|ja|日本語)/.test(l);
+  const en = /^(english|en)$/.test(l);
+  let section = "";
+  const out = [];
+  for (const raw of String((ja ? jaText : enText) || "").split("\n")) {
+    const line = raw.trim();
+    if (!line) continue;
+    if (line.startsWith("#")) {
+      section = line.slice(1).trim().toLowerCase();
+      continue;
+    }
+    out.push(ja || en || section === "names" ? line : line.split("=")[0].trim());
+  }
+  return out.join("\n");
+}
+
+/** User's own terms first (they win on duplicates), then the built-in ones. */
+export function mergeGlossaries(user, preset) {
+  const seen = new Set();
+  const out = [];
+  for (const text of [user, preset]) {
+    for (const e of parseGlossary(text)) {
+      if (seen.has(e.ko)) continue;
+      seen.add(e.ko);
+      out.push(e.tr ? `${e.ko} = ${e.tr}` : e.ko);
+    }
+  }
+  return out.join("\n");
 }
 
 function glossaryBlock(glossaryText, reverse = false) {

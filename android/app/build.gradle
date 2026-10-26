@@ -10,10 +10,12 @@ android {
         applicationId 'io.github.pst10101.chzzktranslator'
         minSdk 29
         targetSdk 34
-        versionCode 5
-        versionName '1.0.0'
+        versionCode 7
+        versionName '1.1.0'
         // Only our own UI languages (androidx would otherwise bundle ~90 locales)
         resourceConfigurations += ['en', 'ko', 'ja']
+        // Phones only (the on-device text recognition model is ~4 MB per architecture)
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }
     }
 
     buildTypes {
@@ -33,18 +35,14 @@ android {
 }
 
 dependencies {
-    // Origin-restricted JS bridge (addWebMessageListener / addDocumentStartJavaScript)
-    implementation 'androidx.webkit:webkit:1.11.0'
+    // On-device Korean text recognition for reading the chat off the screen (bundled model: works offline,
+    // no Google Play download step; screen pictures never leave the phone)
+    implementation 'com.google.mlkit:text-recognition-korean:16.0.1'
 }
 
-// chat-utils.js is shared with the Chrome extension: copy it from the repo root at build time.
-tasks.register('copySharedJs', Copy) {
-    from("${rootDir}/../chat-utils.js")
-    into("${projectDir}/src/main/assets")
-}
 // The built-in StelLive glossary is shared with the extension too.
 tasks.register('copyGlossary', Copy) {
     from("${rootDir}/../glossary") { include 'stellive-*.txt' }
     into("${projectDir}/src/main/assets/glossary")
 }
-preBuild.dependsOn copySharedJs, copyGlossary
+preBuild.dependsOn copyGlossary

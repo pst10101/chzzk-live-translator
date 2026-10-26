@@ -92,6 +92,23 @@ public final class TranslateUtil {
         return out.toString();
     }
 
+    /**
+     * Only the glossary entries whose Korean spelling occurs in this text (spaces ignored). Free models allow
+     * few tokens a minute, so each request carries just the terms it needs instead of the whole list.
+     */
+    public static String relevantGlossary(String glossary, String text) {
+        if (glossary == null || glossary.isEmpty() || text == null) return "";
+        String t = text.replaceAll("\\s+", "");
+        StringBuilder sb = new StringBuilder();
+        for (Entry e : parseGlossary(glossary)) {
+            String k = e.ko.replaceAll("\\s+", "");
+            if (k.isEmpty() || !t.contains(k)) continue;
+            if (sb.length() > 0) sb.append('\n');
+            sb.append(entryLine(e.ko, e.tr, e.note));
+        }
+        return sb.toString();
+    }
+
     /** Korean spellings only (max 300 chars) — Whisper uses this as a spelling hint. */
     public static String whisperPrompt(String glossary) {
         StringBuilder sb = new StringBuilder();

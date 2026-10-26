@@ -16,17 +16,30 @@ public final class Bus {
     public static final int INFO = 0, WARN = 1, ERROR = 2;
 
     private static volatile Listener listener;
+    private static volatile Listener overlay;
+    /** True while this app's own screen is in front (the overlay hides then). */
+    public static volatile boolean appVisible = false;
     private static final Handler main = new Handler(Looper.getMainLooper());
     public static volatile boolean running = false;
 
     public static void set(Listener l) { listener = l; }
 
+    public static void setOverlay(Listener l) { overlay = l; }
+
     public static void subtitle(long id, String ko, String tr) {
-        main.post(() -> { Listener l = listener; if (l != null) l.onSubtitle(id, ko, tr); });
+        main.post(() -> {
+            Listener l = listener, o = overlay;
+            if (l != null) l.onSubtitle(id, ko, tr);
+            if (o != null) o.onSubtitle(id, ko, tr);
+        });
     }
 
     public static void status(String text, int level) {
-        main.post(() -> { Listener l = listener; if (l != null) l.onStatus(text, level, running); });
+        main.post(() -> {
+            Listener l = listener, o = overlay;
+            if (l != null) l.onStatus(text, level, running);
+            if (o != null) o.onStatus(text, level, running);
+        });
     }
 
     public static void running(boolean r, String text, int level) {

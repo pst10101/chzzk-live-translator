@@ -1,42 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="main_sub">치지직 앱(또는 방송을 트는 아무 앱) 위에 실시간 자막과 채팅 번역을 띄워요.</string>
+    <string name="btn_start">▶ 번역 시작</string>
+    <string name="btn_stop_all">■ 중지</string>
+    <string name="btn_open_chzzk">치지직 ↗</string>
+    <string name="main_steps">1. 아래에 무료 Groq 키를 넣어요.\n2. 시작을 누르고 권한(다른 앱 위에 표시, 화면 녹화)을 허용해요.\n3. 치지직 앱에서 방송을 틀어요.\n4. 떠 있는 CC 버튼 → \'채팅 영역\'에서 상자를 채팅 위로 옮겨요.</string>
+    <string name="st_ready">준비됨</string>
+    <string name="st_running">번역 중 — 치지직 앱을 여세요</string>
+    <string name="st_pick_one">자막이나 채팅 번역 중 하나는 켜 주세요</string>
+
+    <string name="sec_what">번역할 것</string>
+    <string name="set_subs">음성 → 자막</string>
+    <string name="set_screen_chat">화면 속 채팅 → 내 언어</string>
+    <string name="set_screen_chat_note">고른 화면 영역(CC 버튼 → 채팅 영역)에서 채팅을 읽어요. 화면 이미지는 폰 안에서만 읽고 업로드하지 않아요. 인식한 채팅 글자만 번역용으로 보내요.</string>
+
+    <string name="sec_keys">API 키</string>
+    <string name="set_intro">카드 등록 없는 무료 키예요. 이 폰에만 저장되고 Groq / NVIDIA로만 전송돼요.</string>
+    <string name="set_groq">Groq API 키 (필수)</string>
+    <string name="set_groq_get">무료 Groq 키 받기 ↗</string>
+    <string name="set_nv">NVIDIA API 키 (선택 — 슬랭 번역이 더 좋아요)</string>
+    <string name="set_nv_get">무료 NVIDIA 키 받기 ↗</string>
+
+    <string name="sec_translation">번역</string>
+    <string name="set_lang">번역할 언어</string>
+    <string name="set_orig">한국어 원문도 같이 표시</string>
+    <string name="set_preset">스텔라이브 내장 용어집</string>
+    <string name="set_preset_note">멤버 이름, 팬덤 이름, 인사말, 밈 — \'번역할 언어\'에 따라 영어판이나 일본어판을 써요. 아래에 직접 넣은 용어가 먼저 적용돼요.</string>
+    <string name="set_glossary">이름·용어 (한 줄에 하나, 예: 멤버이름 = Member Name)</string>
+
+    <string name="sec_look">모양·타이밍</string>
+    <string name="set_font">글자 크기</string>
+    <string name="set_overlay_pos">자막 높이 (아래에서부터)</string>
+    <string name="set_pace">Whisper 타이밍</string>
+    <string name="pace_allday">하루 종일 (약 15초 지연, 하루 약 8시간)</string>
+    <string name="pace_fast">빠르게 (5–10초 지연, 하루 3–5시간)</string>
+
+    <string name="set_privacy">작동 방식: 시작할 때 안드로이드가 화면 녹화 허용을 물어봐요. 앱은 이걸로 방송 소리를 듣고, 채팅 번역을 켜면 고른 채팅 영역을 읽어요. 아무것도 녹화·저장하지 않고 화면 이미지는 폰 밖으로 나가지 않아요. 다른 앱 소리도 잡힐 수 있으니 다 보면 꺼 주세요(CC 버튼 → 중지, 또는 알림).</string>
+
+    <string name="menu_subs_on">자막: 켜짐</string>
+    <string name="menu_subs_off">자막: 꺼짐</string>
+    <string name="menu_chat_on">채팅 번역: 켜짐</string>
+    <string name="menu_chat_off">채팅 번역: 꺼짐</string>
+    <string name="menu_area">채팅 영역…</string>
+    <string name="menu_app">설정</string>
+    <string name="menu_stop">■ 중지</string>
+
+    <string name="ed_hint">파란 상자: 채팅이 있는 곳. 초록 상자: 번역을 띄울 곳.\n상자를 끌어 옮기고, 모서리를 끌어 크기를 바꿔요.</string>
+    <string name="ed_read">읽을 채팅</string>
+    <string name="ed_panel">번역 표시</string>
+    <string name="ed_save">저장</string>
+    <string name="ed_cancel">취소</string>
+    <string name="ed_reset">기본값</string>
+
     <string name="btn_stop">중지</string>
     <string name="notif_channel">실시간 번역</string>
-    <string name="notif_text">방송 소리로 자막을 만드는 중…</string>
+    <string name="notif_text">화면 속 방송을 번역하는 중…</string>
 
-    <string name="st_listening">듣는 중… 말하고 몇 초 뒤에 자막이 나와요</string>
-    <string name="st_stopped">자막 중지됨</string>
+    <string name="st_stopped">중지됨</string>
     <string name="st_capture_failed">소리를 캡처하지 못했어요 (%1$s)</string>
-    <string name="st_capture_denied">화면/오디오 캡처가 허용되지 않았어요</string>
-    <string name="st_need_mic">자막을 만들려면 오디오 캡처 권한이 필요해요</string>
-    <string name="st_no_groq">설정(⚙)에서 무료 Groq API 키를 넣어 주세요</string>
-    <string name="st_bad_groq">Groq API 키가 올바르지 않아요 — 설정을 확인해 주세요</string>
+    <string name="st_capture_denied">화면 녹화가 허용되지 않았어요</string>
+    <string name="st_need_mic">자막에는 오디오 캡처(마이크) 권한이 필요해요</string>
+    <string name="st_overlay_perm">이 앱에 \'다른 앱 위에 표시\'를 허용한 뒤 돌아와 주세요</string>
+    <string name="st_no_groq">먼저 무료 Groq API 키를 넣어 주세요</string>
+    <string name="st_bad_groq">Groq API 키가 올바르지 않아요 — 앱에서 확인해 주세요</string>
     <string name="st_groq_quota">Groq 무료 음성 한도를 다 썼어요 — %1$s에 다시 시작해요</string>
     <string name="st_groq_wait">음성 한도 도달 — %1$d초 후 다시 시작</string>
     <string name="st_speech_error">음성 인식 서버 오류 (%1$d)</string>
     <string name="st_network">네트워크 문제 — 다시 시도 중</string>
     <string name="st_tr_busy">번역 한도 도달 — 잠시 한국어로 표시해요</string>
     <string name="st_tr_error">번역 오류 (%1$d)</string>
-    <string name="st_old_webview">이 폰의 WebView가 오래돼서 채팅 번역을 쓸 수 없어요 — Play 스토어에서 \"Android System WebView\"를 업데이트해 주세요</string>
-
-    <string name="set_title">설정</string>
-    <string name="set_intro">자막에는 무료 Groq API 키가 필요해요(카드 등록 없음). 키는 이 폰에만 저장되고 Groq / NVIDIA로만 전송돼요.</string>
-    <string name="set_groq">Groq API 키 (필수)</string>
-    <string name="set_groq_get">무료 Groq 키 받기 ↗</string>
-    <string name="set_nv">NVIDIA API 키 (선택 — 슬랭 번역이 더 좋아요)</string>
-    <string name="set_nv_get">무료 NVIDIA 키 받기 ↗</string>
-    <string name="set_lang">번역할 언어</string>
-    <string name="set_pace">Whisper 타이밍</string>
-    <string name="pace_allday">종일 (약 15초 지연, 하루 약 8시간)</string>
-    <string name="pace_fast">빠르게 (5–10초 지연, 하루 3–5시간)</string>
-    <string name="set_chat">채팅·방송 제목 번역 (한국어 → 선택한 언어)</string>
-    <string name="set_chat_ko">외국어 채팅 → 한국어</string>
-    <string name="set_orig">자막 아래에 한국어 원문 표시</string>
-    <string name="set_font">자막 크기</string>
-    <string name="set_preset">스텔라이브 용어집 내장</string>
-    <string name="set_preset_note">멤버 이름·팬네임·인사말·밈. 번역할 언어에 맞춰 영어판/일본어판이 자동으로 쓰여요. 아래 직접 적은 용어가 먼저 적용돼요.</string>
-    <string name="set_glossary">이름·용어 (한 줄에 하나, 예: 멤버이름 = Member Name)</string>
-    <string name="set_privacy">작동 방식: ▶ CC를 누르면 안드로이드가 화면 녹화/전송 허용을 물어봐요. 앱은 이걸 방송 소리를 듣는 데만 쓰고, 화면은 녹화하거나 어디로도 보내지 않아요. 자막이 켜져 있는 동안 다른 앱의 소리도 잡힐 수 있으니 다 보면 ■ CC를 눌러 꺼 주세요.</string>
-    <string name="btn_save">저장</string>
-    <string name="btn_cancel">취소</string>
+    <string name="st_chat_busy">채팅 번역 한도 도달 — 잠시 후 이어서 번역해요</string>
+    <string name="st_screen_failed">화면을 읽지 못했어요 — 이번에는 채팅 번역이 꺼져요</string>
+    <string name="st_ocr_failed">채팅 읽기 문제 (%1$s)</string>
 </resources>

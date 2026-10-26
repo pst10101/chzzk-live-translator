@@ -119,7 +119,17 @@ public final class Net {
         body.put("messages", msgs);
         body.put("temperature", 0.2);
         body.put("top_p", 0.9);
-        body.put("max_tokens", maxTokens);
+        if (model.startsWith("openai/gpt-oss")) {
+            // Reasoning models: think briefly, don't send the thinking back; the limit covers thinking + answer.
+            body.put("reasoning_effort", "low");
+            body.put("include_reasoning", false);
+            body.put("max_completion_tokens", maxTokens + 400);
+        } else if (model.startsWith("qwen/")) {
+            body.put("reasoning_effort", "none");
+            body.put("max_completion_tokens", maxTokens);
+        } else {
+            body.put("max_tokens", maxTokens);
+        }
         body.put("stream", false);
         try (OutputStream o = c.getOutputStream()) {
             o.write(body.toString().getBytes(StandardCharsets.UTF_8));

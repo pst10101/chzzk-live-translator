@@ -1,45 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">CHZZK Live Translator</string>
-    <string name="btn_cc_start" translatable="false">▶ CC</string>
-    <string name="btn_cc_stop" translatable="false">■ CC</string>
+    <string name="value_fmt" translatable="false">%1$s — %2$d%3$s</string>
+    <string name="cc" translatable="false">CC</string>
+
+    <string name="main_sub">Live subtitles and chat translation on top of the CHZZK app (or any app playing a stream).</string>
+    <string name="btn_start">▶ Start translating</string>
+    <string name="btn_stop_all">■ Stop</string>
+    <string name="btn_open_chzzk">CHZZK ↗</string>
+    <string name="main_steps">1. Paste your free Groq key below.\n2. Tap Start and allow the permissions (display over other apps, screen recording).\n3. Open a stream in the CHZZK app.\n4. Tap the floating CC button → \"Chat area\" and drag the boxes over the chat.</string>
+    <string name="st_ready">Ready</string>
+    <string name="st_running">Translating — open the CHZZK app</string>
+    <string name="st_pick_one">Turn on subtitles or chat translation first</string>
+
+    <string name="sec_what">What to translate</string>
+    <string name="set_subs">Speech → subtitles</string>
+    <string name="set_screen_chat">Chat on screen → your language</string>
+    <string name="set_screen_chat_note">Chat is read from the screen area you choose (CC button → Chat area). The picture is read on this phone and never uploaded — only the recognised chat text is sent for translation.</string>
+
+    <string name="sec_keys">API keys</string>
+    <string name="set_intro">Free keys, no card needed. They stay on this phone and are only sent to Groq / NVIDIA.</string>
+    <string name="set_groq">Groq API key (required)</string>
+    <string name="set_groq_get">Get a free Groq key ↗</string>
+    <string name="set_nv">NVIDIA API key (optional — better with slang)</string>
+    <string name="set_nv_get">Get a free NVIDIA key ↗</string>
+
+    <string name="sec_translation">Translation</string>
+    <string name="set_lang">Translate into</string>
+    <string name="set_orig">Also show the Korean original</string>
+    <string name="set_preset">Built-in StelLive terms</string>
+    <string name="set_preset_note">Member names, fan names, greetings and memes — the English or Japanese version is picked from \"Translate into\". Your own terms below are used first.</string>
+    <string name="set_glossary">Names &amp; terms (one per line, e.g. 멤버이름 = Member Name)</string>
+
+    <string name="sec_look">Look &amp; timing</string>
+    <string name="set_font">Text size</string>
+    <string name="set_overlay_pos">Subtitle height from the bottom</string>
+    <string name="set_pace">Whisper timing</string>
+    <string name="pace_allday">All day (~15 s behind, ~8 h a day)</string>
+    <string name="pace_fast">Fast (5–10 s behind, 3–5 h a day)</string>
+
+    <string name="set_privacy">How it works: Android asks to allow screen recording when you start. The app uses it to hear the stream\'s sound and, if chat translation is on, to read the chat area you picked. Nothing is recorded or saved, and pictures never leave the phone. Sound from other apps can be captured too, so stop it when you\'re done (CC button → Stop, or the notification).</string>
+
+    <string name="menu_subs_on">Subtitles: on</string>
+    <string name="menu_subs_off">Subtitles: off</string>
+    <string name="menu_chat_on">Chat translation: on</string>
+    <string name="menu_chat_off">Chat translation: off</string>
+    <string name="menu_area">Chat area…</string>
+    <string name="menu_app">Settings</string>
+    <string name="menu_stop">■ Stop</string>
+
+    <string name="ed_hint">Blue: where the chat is. Green: where its translation goes.\nDrag a box to move it, drag a corner to resize.</string>
+    <string name="ed_read">Chat to read</string>
+    <string name="ed_panel">Translation</string>
+    <string name="ed_save">Save</string>
+    <string name="ed_cancel">Cancel</string>
+    <string name="ed_reset">Default</string>
+
     <string name="btn_stop">Stop</string>
     <string name="notif_channel">Live translation</string>
-    <string name="notif_text">Making subtitles from the stream\'s sound…</string>
+    <string name="notif_text">Translating the stream on screen…</string>
 
-    <string name="st_listening">Listening… subtitles appear a few seconds after speech</string>
-    <string name="st_stopped">Subtitles stopped</string>
+    <string name="st_stopped">Stopped</string>
     <string name="st_capture_failed">Couldn\'t capture the sound (%1$s)</string>
-    <string name="st_capture_denied">Screen / audio capture wasn\'t allowed</string>
-    <string name="st_need_mic">The audio capture permission is needed for subtitles</string>
-    <string name="st_no_groq">Add your free Groq API key in Settings (⚙)</string>
-    <string name="st_bad_groq">Groq API key is invalid — check it in Settings</string>
+    <string name="st_capture_denied">Screen recording wasn\'t allowed</string>
+    <string name="st_need_mic">Subtitles need the audio capture (microphone) permission</string>
+    <string name="st_overlay_perm">Allow \"Display over other apps\" for this app, then come back</string>
+    <string name="st_no_groq">Paste your free Groq API key first</string>
+    <string name="st_bad_groq">Groq API key is invalid — check it in the app</string>
     <string name="st_groq_quota">Groq\'s free speech limit is used up — subtitles resume at %1$s</string>
     <string name="st_groq_wait">Speech limit reached — resuming in %1$d s</string>
     <string name="st_speech_error">Speech service error (%1$d)</string>
     <string name="st_network">Network problem — retrying</string>
     <string name="st_tr_busy">Translation limit reached — showing Korean for a moment</string>
     <string name="st_tr_error">Translation error (%1$d)</string>
-    <string name="st_old_webview">This phone\'s WebView is too old for chat translation — update \"Android System WebView\" in the Play Store</string>
-
-    <string name="set_title">Settings</string>
-    <string name="set_intro">Subtitles need a free Groq API key (no card needed). Your keys stay on this phone and are only sent to Groq / NVIDIA.</string>
-    <string name="set_groq">Groq API key (required)</string>
-    <string name="set_groq_get">Get a free Groq key ↗</string>
-    <string name="set_nv">NVIDIA API key (optional — better with slang)</string>
-    <string name="set_nv_get">Get a free NVIDIA key ↗</string>
-    <string name="set_lang">Translate into</string>
-    <string name="set_pace">Whisper timing</string>
-    <string name="pace_allday">All day (~15 s behind, ~8 h a day)</string>
-    <string name="pace_fast">Fast (5–10 s behind, 3–5 h a day)</string>
-    <string name="set_chat">Translate chat &amp; stream title (Korean → your language)</string>
-    <string name="set_chat_ko">Foreign chat → 한국어 (Korean)</string>
-    <string name="set_orig">Show Korean under subtitles</string>
-    <string name="set_font">Subtitle size</string>
-    <string name="set_preset">Built-in StelLive terms</string>
-    <string name="set_preset_note">Member names, fan names, greetings and memes — the English or Japanese version is picked from \"Translate into\". Your own terms below are used first.</string>
-    <string name="set_glossary">Names &amp; terms (one per line, e.g. 멤버이름 = Member Name)</string>
-    <string name="set_privacy">How it works: when you tap ▶ CC, Android asks to allow screen recording / casting. The app only uses it to hear the stream\'s sound — the screen is never recorded or sent anywhere. While subtitles are on, sound from other apps can be captured too, so tap ■ CC when you\'re done.</string>
-    <string name="btn_save">Save</string>
-    <string name="btn_cancel">Cancel</string>
+    <string name="st_chat_busy">Chat translation limit reached — catching up shortly</string>
+    <string name="st_screen_failed">Couldn\'t read the screen — chat translation is off this time</string>
+    <string name="st_ocr_failed">Chat reading problem (%1$s)</string>
 </resources>

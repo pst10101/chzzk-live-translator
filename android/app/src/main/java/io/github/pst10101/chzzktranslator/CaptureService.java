@@ -15,7 +15,10 @@ import android.media.AudioPlaybackCaptureConfiguration;
 import android.media.AudioRecord;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
+import android.provider.Settings;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -28,9 +31,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Captures the audio other apps (and this app's player) play — Android 10+ "audio playback capture",
- * which needs the screen-capture permission — cuts it into speech chunks, sends them to Groq Whisper
- * and translates each line. Same timing rules as the Chrome extension's offscreen.js.
+ * Runs while translation is on. With the screen-capture permission it
+ *  - hears what other apps play (Android 10+ "audio playback capture"), cuts it into speech chunks, sends them
+ *    to Groq Whisper and translates each line (same timing rules as the Chrome extension's offscreen.js);
+ *  - reads the chat in the area the user picked off the screen (see ScreenChat);
+ * and draws subtitles, the chat panel and the floating CC button on top of the other app.
  */
 public class CaptureService extends Service {
     public static final String ACTION_STOP = "io.github.pst10101.chzzktranslator.STOP";
@@ -53,6 +58,12 @@ public class CaptureService extends Service {
     private Prefs prefs;
     private AudioUtil.Chunker chunker;
     private SharedPreferences.OnSharedPreferenceChangeListener prefListener;
+    private SubtitleOverlay subs;
+    private ChatOverlay chatPanel;
+    private ControlBubble bubble;
+    private RegionEditor editor;
+    private ScreenChat screenChat;
+    private final Handler main = new Handler(Looper.getMainLooper());
 
     @Override
     public IBinder onBind(Intent i) { return null; }
@@ -85,7 +96,73 @@ public class CaptureService extends Service {
             projection.registerCallback(new MediaProjection.Callback() {
                 @Override
                 public void onStop() { shutdown(getString(R.string.st_stopped)); }
-            }, null);
+            }, main);
+        } catch (Throwable t) {
+            shutdown(getString(R.string.st_capture_failed, t.getClass().getSimpleName()));
+            return START_NOT_STICKY;
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            shutdown(getString(R.string.st_overlay_perm));
+            return START_NOT_STICKY;
+        }
+
+        boolean audioOk = startAudio();
+        if (!audioOk && prefs.subsOn() && !prefs.screenChatOn()) {
+            shutdown(getString(R.string.st_need_mic));
+            return START_NOT_STICKY;
+        }
+
+        // Settings changed (in the app or from the CC button's menu) while running: apply on the fly.
+        prefListener = (sp, key) -> {
+            if (key == null) return;
+            if ("speechPace".equals(key) && chunker != null) {
+                double[] np = AudioUtil.pace(prefs.pace());
+                chunker.setLimits(np[0], np[1]);
+            }
+            if ("overlayPos".equals(key) && subs != null) subs.reposition();
+            if (key.startsWith("read") || key.startsWith("panel")) {
+                if (chatPanel != null) chatPanel.place();
+                if (screenChat != null) screenChat.areaChanged();
+            }
+            if (("subsOn".equals(key) || "screenChatOn".equals(key)) && bubble != null) bubble.refresh();
+            if ("subsOn".equals(key) && prefs.subsOn() && record == null) Bus.status(getString(R.string.st_need_mic), Bus.WARN);
+        };
+        prefs.raw().registerOnSharedPreferenceChangeListener(prefListener);
+
+        active = true;
+        subs = new SubtitleOverlay(this, prefs);
+        subs.show();
+        Bus.setOverlay(subs);
+        chatPanel = new ChatOverlay(this, prefs);
+        chatPanel.show();
+        bubble = new ControlBubble(this, prefs, new ControlBubble.Actions() {
+            @Override public void editAreas() { openEditor(); }
+            @Override public void openApp() { openMainScreen(); }
+            @Override public void stop() { shutdown(getString(R.string.st_stopped)); }
+        });
+        bubble.show();
+        screenChat = new ScreenChat(this, prefs, projection, chatPanel);
+        screenChat.start();
+
+        Bus.running(true, getString(R.string.st_running), Bus.INFO);
+        if (!audioOk && prefs.subsOn()) Bus.status(getString(R.string.st_need_mic), Bus.WARN);
+        if (record != null) {
+            double[] p = AudioUtil.pace(prefs.pace());
+            chunker = new AudioUtil.Chunker(this::onChunk, p[0], p[1]);
+            captureThread = new Thread(this::captureLoop, "ctr-capture");
+            workThread = new Thread(this::workLoop, "ctr-whisper");
+            captureThread.start();
+            workThread.start();
+        }
+        return START_NOT_STICKY;
+    }
+
+    /** Starts hearing what other apps play. False when that isn't possible (no permission, refused). */
+    private boolean startAudio() {
+        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO) != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            return false;
+        }
+        try {
             AudioPlaybackCaptureConfiguration cfg = new AudioPlaybackCaptureConfiguration.Builder(projection)
                     .addMatchingUsage(AudioAttributes.USAGE_MEDIA)
                     .addMatchingUsage(AudioAttributes.USAGE_GAME)
@@ -104,32 +181,30 @@ public class CaptureService extends Service {
                     .build();
             if (record.getState() != AudioRecord.STATE_INITIALIZED) throw new IllegalStateException("AudioRecord");
             record.startRecording();
-        } catch (SecurityException e) {
-            shutdown(getString(R.string.st_need_mic));
-            return START_NOT_STICKY;
+            return true;
         } catch (Throwable t) {
-            shutdown(getString(R.string.st_capture_failed, t.getClass().getSimpleName()));
-            return START_NOT_STICKY;
+            try { if (record != null) record.release(); } catch (Throwable ignored) { }
+            record = null;
+            Bus.status(getString(R.string.st_capture_failed, t.getClass().getSimpleName()), Bus.WARN);
+            return false;
         }
+    }
 
-        double[] p = AudioUtil.pace(prefs.pace());
-        chunker = new AudioUtil.Chunker(this::onChunk, p[0], p[1]);
-        // Pace changed in Settings while running: apply on the fly.
-        prefListener = (sp, key) -> {
-            if ("speechPace".equals(key) && chunker != null) {
-                double[] np = AudioUtil.pace(prefs.pace());
-                chunker.setLimits(np[0], np[1]);
-            }
-        };
-        getSharedPreferences("ctr", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(prefListener);
+    /** Shows the box editor for the chat areas over whatever app is open. */
+    private void openEditor() {
+        if (editor != null && editor.isShowing()) return;
+        if (bubble != null) bubble.setVisible(false);
+        editor = new RegionEditor(this, prefs, saved -> {
+            if (bubble != null) bubble.setVisible(true);
+            if (saved && chatPanel != null) chatPanel.clear();
+        });
+        editor.show();
+    }
 
-        active = true;
-        Bus.running(true, getString(R.string.st_listening), Bus.INFO);
-        captureThread = new Thread(this::captureLoop, "ctr-capture");
-        workThread = new Thread(this::workLoop, "ctr-whisper");
-        captureThread.start();
-        workThread.start();
-        return START_NOT_STICKY;
+    private void openMainScreen() {
+        try {
+            startActivity(new Intent(this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP));
+        } catch (Throwable ignored) { }
     }
 
     private void captureLoop() {
@@ -150,7 +225,7 @@ public class CaptureService extends Service {
     }
 
     private void onChunk(float[] samples) {
-        if (System.currentTimeMillis() < pausedUntil) return;
+        if (!prefs.subsOn() || System.currentTimeMillis() < pausedUntil) return;
         queue.addLast(samples);
         while (queue.size() > MAX_QUEUE) queue.pollFirst(); // falling behind: drop the oldest, stay live
     }
@@ -217,7 +292,11 @@ public class CaptureService extends Service {
             Bus.subtitle(id, ko, "");
             return;
         }
-        String[] pr = TranslateUtil.subtitlePrompt(ko, new ArrayList<>(context), prefs.targetLang(), Glossary.effective(this, prefs));
+        List<String[]> ctx = new ArrayList<>(context);
+        StringBuilder seenText = new StringBuilder(ko);
+        for (String[] c : ctx) seenText.append(' ').append(c[0]);
+        String glossary = TranslateUtil.relevantGlossary(Glossary.effective(this, prefs), seenText.toString());
+        String[] pr = TranslateUtil.subtitlePrompt(ko, ctx, prefs.targetLang(), glossary);
         String tr = "";
         try {
             tr = TranslateUtil.cleanSubtitle(Llm.complete(prefs, false, pr[0], pr[1], 300));
@@ -261,9 +340,12 @@ public class CaptureService extends Service {
         active = false;
         queue.clear();
         if (prefListener != null) {
-            getSharedPreferences("ctr", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(prefListener);
+            prefs.raw().unregisterOnSharedPreferenceChangeListener(prefListener);
             prefListener = null;
         }
+        ScreenChat sc = screenChat;
+        screenChat = null;
+        if (sc != null) sc.stop();
         Thread ct = captureThread;
         if (ct != null && ct != Thread.currentThread()) {
             try { ct.join(400); } catch (InterruptedException ignored) { }
@@ -276,6 +358,17 @@ public class CaptureService extends Service {
         projection = null;
         try { if (mp != null) mp.stop(); } catch (Throwable ignored) { }
         if (translator != null) translator.shutdownNow();
+        main.post(() -> {
+            Bus.setOverlay(null);
+            if (editor != null && editor.isShowing()) editor.close(false);
+            editor = null;
+            if (subs != null) subs.hide();
+            subs = null;
+            if (chatPanel != null) chatPanel.hide();
+            chatPanel = null;
+            if (bubble != null) bubble.hide();
+            bubble = null;
+        });
         Bus.running(false, status, Bus.INFO);
         stopForeground(STOP_FOREGROUND_REMOVE);
         stopSelf();

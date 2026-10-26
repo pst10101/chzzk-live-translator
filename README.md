@@ -4,6 +4,8 @@
 
 A Chrome extension — and now an **Android app (beta)** — that turns Korean speech on [CHZZK](https://chzzk.naver.com) live streams and replays into **live subtitles in your language**, and **translates the chat** as it scrolls by.
 
+![Example: English subtitles (Korean original below) from the Android app, over the official CHZZK app](docs/android-subtitles.jpg)
+
 > **Disclaimer**
 > - This is an unofficial, fan-made, non-commercial project for personal and fan use. It is not affiliated with, endorsed by, or sponsored by NAVER, CHZZK, Stellive or any streamer. All names and trademarks belong to their owners.
 > - It does not download, record, save or re-upload any stream. It only listens to the audio and reads the chat of the page you are watching (short audio pieces go to the speech service you choose, see Privacy) and shows translations on your own screen.
@@ -20,7 +22,7 @@ A Chrome extension — and now an **Android app (beta)** — that turns Korean s
 - **Built-in StelLive terms**: member names, fan names, greetings and memes in an English and a Japanese version, so Whisper spells names right and translations stay consistent (High accuracy mode and the Android app; on by default)
 - **Stream title** translated right under the title (live and replays)
 - Works on live streams and replays
-- [Android app (beta)](#android-app-beta) with the same subtitles and chat translation
+- [Android app (beta)](#android-app-beta): subtitles and chat translation **on top of the official CHZZK app**
 - Two modes:
 
 | Mode | Speech recognition | Translation | API keys | Limits |
@@ -65,30 +67,35 @@ To also translate chat written in **other languages into Korean**, turn on **For
 
 ## Android app (beta)
 
-The same live subtitles and chat translation on Android phones — a separate app with CHZZK's mobile site built in.
+A separate app for Android phones. Keep watching in the **official CHZZK app** (or a browser) — the translator runs on top of it:
+
+- **Speech → subtitles** floating over the video, with the Korean original underneath if you like.
+- **Chat on screen → your language**: you mark where the chat is, the app reads it and shows the translation in a small panel. The screen picture is read **on your phone** (Google ML Kit text recognition) and never uploaded; only the recognised chat text is sent for translation.
+- Turn each one on or off, in the app or from the floating **CC** button.
 
 - Android 10 or newer
-- **A free Groq key is required** (see [Groq key](#groq-key-speech-recognition--required-for-high-accuracy)); the NVIDIA key is optional. Phones have no Free mode, because Chrome's built-in speech recognition and translator aren't available to apps.
-- Not on the Play Store — you install the APK file yourself. It is a **beta** that has only been tested on a few phones, so please report problems in [Issues](https://github.com/pst10101/chzzk-live-translator/issues).
+- **A free Groq key is required** (see [Groq key](#groq-key-speech-recognition--required-for-high-accuracy)). An NVIDIA key is optional and takes load off Groq's free limits. The phone has no Free mode (Chrome's built-in speech and translator aren't available to apps).
+- Installed from an APK file, not the Play Store. It's a **beta** tested on few phones — please report problems in [Issues](https://github.com/pst10101/chzzk-live-translator/issues).
 
 ### Install
 
 1. On your phone, open the [latest release](https://github.com/pst10101/chzzk-live-translator/releases/latest) and download **`chzzk-live-translator-android-v1.x.x.apk`**.
 2. Open the downloaded file. Android asks to allow installing apps from this source (your browser or Files app): allow it, go back, and tap **Install**. If Play Protect warns that the app is unknown, tap **More details → Install anyway**.
-3. Open **CHZZK Live Translator**. Settings open the first time: paste your **Groq key**, choose **Translate into**, and tap **Save**.
+3. Open **CHZZK Live Translator**, paste your **Groq key**, pick **Translate into**, and choose what to translate (speech, chat or both).
 
 ### Use
 
-1. Open a live stream (or a replay) in the app and start playing it.
-2. Tap **▶ CC** on the small floating bar. Android asks to allow screen recording / casting — the app needs it only to hear the sound; the screen is never recorded or sent anywhere. Tap **Start**.
-3. Subtitles appear on the video a few seconds after speech (also in fullscreen).
-4. Tap **■ CC**, or **Stop** in the notification, when you're done.
+1. Tap **▶ Start translating** and allow the two permissions Android asks for:
+   - **Display over other apps** — to draw subtitles, the chat panel and the CC button on top of the CHZZK app.
+   - **Screen recording** — to hear the stream's sound and, if chat translation is on, read the chat area. Nothing is recorded or saved.
+2. Open a stream in the CHZZK app (the **CHZZK ↗** button opens it). Subtitles appear a few seconds after someone speaks.
+3. For chat: tap the floating **CC** button → **Chat area…**. Drag the **blue box** over the chat and the **green box** to where the translation should go; drag a corner to resize, then **Save**. Portrait and landscape are saved separately.
+4. When you're done, tap **CC → ■ Stop** (or **Stop** in the notification).
 
-- **⚙** opens settings: keys, language, Whisper timing, *Translate chat & stream title*, *Foreign chat → 한국어*, subtitle size, names & terms.
-- If the floating bar covers something, drag it up or down by its **⠿** handle.
-- Chat translations appear in the chat under the player.
-- When Groq's daily free limit runs out, subtitles pause and come back when it resets (the app shows the time).
-- While subtitles are on, sound from other apps can be captured too, so stop them when you're done.
+- The CC menu turns subtitles and chat translation on/off while you watch; drag the button anywhere.
+- The app settings also have text size, subtitle height, Whisper timing, the StelLive terms and your own names & terms.
+- Groq's free limits: Whisper about 8 hours a day; translation models 1,000 requests a day each. When a limit is reached the app says so on screen and continues when it resets. Adding an NVIDIA key helps a lot.
+- While it's on, sound from other apps can be captured too — stop it when you're done.
 
 ## Getting API keys (High accuracy mode)
 
@@ -164,7 +171,7 @@ On Android, yes — install the [Android app (beta)](#android-app-beta). iPhone 
 
 - Free mode: the stream's audio goes to Chrome's speech recognition service; translation happens on your computer.
 - High accuracy mode: the stream's audio goes to Groq; text goes to NVIDIA if you added an NVIDIA key.
-- Android app: the stream's sound goes to Groq; text goes to NVIDIA if you added an NVIDIA key, otherwise to Groq. Keys are stored only inside the app on your phone.
+- Android app: the stream's sound goes to Groq; text (subtitle lines and recognised chat lines) goes to NVIDIA if you added an NVIDIA key, otherwise to Groq. The chat area is read from the screen on the phone itself — screen pictures are never sent anywhere. Keys are stored only inside the app on your phone.
 - Nothing is sent anywhere else, and neither the extension nor the app collects any data.
 
 ## Troubleshooting
@@ -176,8 +183,10 @@ On Android, yes — install the [Android app (beta)](#android-app-beta). iPhone 
 | "Click here to start free subtitles" | Click that message once |
 | Only Korean, no translation | Free: click the translator download message, or pick another language. High accuracy: check the NVIDIA key or remove it to use Chrome's translator |
 | Translation model not found | In *API keys & models*, click **load list** and pick another model |
-| Chat is not translated | CHZZK may have changed its page layout — update `TEXT_SEL` in `content.js` (Android: `android/app/src/main/assets/chat.js`) |
-| Android: no subtitles / "Couldn't capture the sound" | Make sure the stream is playing with sound in the app, then tap ▶ CC again. If Android asks what to share, choose the **entire screen** |
+| Chat is not translated | CHZZK may have changed its page layout — update `TEXT_SEL` in `content.js` |
+| Android: no subtitles / "Couldn't capture the sound" | Make sure the stream is playing with sound, then start again. If Android asks what to share, choose the **entire screen**. Some apps don't allow their sound to be captured |
+| Android: Korean only / "Translation error (404)" | Update the app (v1.1.0 or newer): Groq retired the translation models older versions used |
+| Android: chat isn't translated | CC → **Chat area…** and put the blue box exactly over the chat lines; check chat translation is on in the CC menu |
 | Android: can't install the APK | Allow installing from your browser or Files app; the app needs Android 10 or newer |
 
 ## For developers
@@ -193,8 +202,8 @@ On Android, yes — install the [Android app (beta)](#android-app-beta). iPhone 
 | `audio-utils.js` | Resampling, speech chunking, WAV encoding, hallucination filter |
 | `translate-utils.js` | Translation prompts and response parsing |
 | `glossary/` | Built-in StelLive terms (`stellive-en.txt`, `stellive-ja.txt`), shared with the Android app |
-| `chat-utils.js` | Which chat lines to translate and in which direction (shared with the Android app) |
-| `android/` | Android app (Java, no extra libraries except `androidx.webkit`). Build: JDK 17 + Android SDK 34, then `gradle assembleDebug` in `android/` |
+| `chat-utils.js` | Which chat lines to translate and in which direction |
+| `android/` | Android app (Java; on-device chat reading with Google ML Kit text recognition). Build: JDK 17 + Android SDK 34, then `gradle assembleDebug` in `android/` |
 
 ## License
 

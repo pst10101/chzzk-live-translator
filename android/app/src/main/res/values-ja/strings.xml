@@ -1,42 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="btn_stop">停止</string>
-    <string name="notif_channel">ライブ翻訳</string>
-    <string name="notif_text">配信の音声から字幕を作成中…</string>
+    <string name="main_sub">CHZZK アプリ（または配信を再生しているアプリ）の上に、リアルタイム字幕とチャット翻訳を表示します。</string>
+    <string name="btn_start">▶ 翻訳を開始</string>
+    <string name="btn_stop_all">■ 停止</string>
+    <string name="btn_open_chzzk">CHZZK ↗</string>
+    <string name="main_steps">1. 下に無料の Groq キーを貼り付けます。\n2. 開始を押して、許可（他のアプリの上に重ねて表示・画面の録画）を与えます。\n3. CHZZK アプリで配信を開きます。\n4. 浮かんでいる CC ボタン →「チャット範囲」で、枠をチャットの上に動かします。</string>
+    <string name="st_ready">準備完了</string>
+    <string name="st_running">翻訳中 — CHZZK アプリを開いてください</string>
+    <string name="st_pick_one">字幕かチャット翻訳のどちらかをオンにしてください</string>
 
-    <string name="st_listening">聞き取り中… 話してから数秒で字幕が出ます</string>
-    <string name="st_stopped">字幕を停止しました</string>
-    <string name="st_capture_failed">音声をキャプチャできませんでした (%1$s)</string>
-    <string name="st_capture_denied">画面／音声のキャプチャが許可されませんでした</string>
-    <string name="st_need_mic">字幕には音声キャプチャの許可が必要です</string>
-    <string name="st_no_groq">設定（⚙）で無料の Groq API キーを入力してください</string>
-    <string name="st_bad_groq">Groq API キーが無効です — 設定を確認してください</string>
-    <string name="st_groq_quota">Groq の無料音声枠を使い切りました — %1$s に再開します</string>
-    <string name="st_groq_wait">音声の上限に達しました — %1$d 秒後に再開</string>
-    <string name="st_speech_error">音声認識サーバーのエラー (%1$d)</string>
-    <string name="st_network">ネットワークの問題 — 再試行中</string>
-    <string name="st_tr_busy">翻訳の上限に達しました — しばらく韓国語で表示します</string>
-    <string name="st_tr_error">翻訳エラー (%1$d)</string>
-    <string name="st_old_webview">この端末の WebView が古いためチャット翻訳を使えません — Play ストアで「Android System WebView」を更新してください</string>
+    <string name="sec_what">翻訳するもの</string>
+    <string name="set_subs">音声 → 字幕</string>
+    <string name="set_screen_chat">画面のチャット → 自分の言語</string>
+    <string name="set_screen_chat_note">選んだ画面の範囲（CC ボタン → チャット範囲）からチャットを読み取ります。画面の画像はこの端末内で読むだけでアップロードしません。認識したチャットの文字だけを翻訳に送ります。</string>
 
-    <string name="set_title">設定</string>
-    <string name="set_intro">字幕には無料の Groq API キーが必要です（カード登録不要）。キーはこの端末にだけ保存され、Groq / NVIDIA にのみ送信されます。</string>
+    <string name="sec_keys">API キー</string>
+    <string name="set_intro">カード登録不要の無料キーです。この端末にだけ保存され、Groq / NVIDIA にだけ送信されます。</string>
     <string name="set_groq">Groq API キー（必須）</string>
     <string name="set_groq_get">無料の Groq キーを取得 ↗</string>
     <string name="set_nv">NVIDIA API キー（任意 — スラングに強い）</string>
     <string name="set_nv_get">無料の NVIDIA キーを取得 ↗</string>
+
+    <string name="sec_translation">翻訳</string>
     <string name="set_lang">翻訳先の言語</string>
+    <string name="set_orig">韓国語の原文も表示</string>
+    <string name="set_preset">ステラライブ用語集（内蔵）</string>
+    <string name="set_preset_note">メンバー名、ファンネーム、挨拶、ミーム —「翻訳先の言語」に合わせて英語版か日本語版を使います。下に自分で入れた用語が優先されます。</string>
+    <string name="set_glossary">名前・用語（1行に1つ、例: 멤버이름 = メンバー名）</string>
+
+    <string name="sec_look">見た目・タイミング</string>
+    <string name="set_font">文字の大きさ</string>
+    <string name="set_overlay_pos">字幕の高さ（下から）</string>
     <string name="set_pace">Whisper のタイミング</string>
     <string name="pace_allday">一日中（約15秒遅れ、1日約8時間）</string>
-    <string name="pace_fast">速い（5〜10秒遅れ、1日3〜5時間）</string>
-    <string name="set_chat">チャットと配信タイトルを翻訳（韓国語 → 選んだ言語）</string>
-    <string name="set_chat_ko">外国語チャット → 한국어（韓国語）</string>
-    <string name="set_orig">字幕の下に韓国語の原文を表示</string>
-    <string name="set_font">字幕の大きさ</string>
-    <string name="set_preset">ステライブ用語集（内蔵）</string>
-    <string name="set_preset_note">メンバー名・ファンネーム・挨拶・ミーム。翻訳先の言語に合わせて英語版／日本語版が自動で使われます。下に自分で書いた用語が優先されます。</string>
-    <string name="set_glossary">名前・用語（1行に1つ。例：멤버이름 = メンバー名）</string>
-    <string name="set_privacy">仕組み：▶ CC を押すと、Android が画面の録画／キャストの許可を求めます。アプリは配信の音声を聞くためだけに使い、画面を録画したりどこかへ送ったりはしません。字幕がオンの間は他のアプリの音も拾うことがあるので、見終わったら ■ CC で止めてください。</string>
-    <string name="btn_save">保存</string>
-    <string name="btn_cancel">キャンセル</string>
+    <string name="pace_fast">速め（5〜10秒遅れ、1日3〜5時間）</string>
+
+    <string name="set_privacy">仕組み：開始すると Android が画面の録画の許可を求めます。アプリはこれで配信の音声を聞き、チャット翻訳がオンなら選んだチャット範囲を読み取ります。録画・保存はせず、画面の画像が端末の外に出ることはありません。他のアプリの音も拾うことがあるので、見終わったら止めてください（CC ボタン → 停止、または通知）。</string>
+
+    <string name="menu_subs_on">字幕：オン</string>
+    <string name="menu_subs_off">字幕：オフ</string>
+    <string name="menu_chat_on">チャット翻訳：オン</string>
+    <string name="menu_chat_off">チャット翻訳：オフ</string>
+    <string name="menu_area">チャット範囲…</string>
+    <string name="menu_app">設定</string>
+    <string name="menu_stop">■ 停止</string>
+
+    <string name="ed_hint">青い枠：チャットがある場所。緑の枠：翻訳を出す場所。\n枠をドラッグで移動、角をドラッグで大きさを変更。</string>
+    <string name="ed_read">読み取るチャット</string>
+    <string name="ed_panel">翻訳の表示</string>
+    <string name="ed_save">保存</string>
+    <string name="ed_cancel">キャンセル</string>
+    <string name="ed_reset">初期値</string>
+
+    <string name="btn_stop">停止</string>
+    <string name="notif_channel">リアルタイム翻訳</string>
+    <string name="notif_text">画面の配信を翻訳中…</string>
+
+    <string name="st_stopped">停止しました</string>
+    <string name="st_capture_failed">音声をキャプチャできませんでした（%1$s）</string>
+    <string name="st_capture_denied">画面の録画が許可されませんでした</string>
+    <string name="st_need_mic">字幕には音声キャプチャ（マイク）の許可が必要です</string>
+    <string name="st_overlay_perm">このアプリに「他のアプリの上に重ねて表示」を許可してから戻ってください</string>
+    <string name="st_no_groq">先に無料の Groq API キーを貼り付けてください</string>
+    <string name="st_bad_groq">Groq API キーが正しくありません — アプリで確認してください</string>
+    <string name="st_groq_quota">Groq の無料音声枠を使い切りました — %1$s に再開します</string>
+    <string name="st_groq_wait">音声の上限に達しました — %1$d 秒後に再開</string>
+    <string name="st_speech_error">音声認識サーバーのエラー（%1$d）</string>
+    <string name="st_network">ネットワークの問題 — 再試行中</string>
+    <string name="st_tr_busy">翻訳の上限に達しました — しばらく韓国語で表示します</string>
+    <string name="st_tr_error">翻訳エラー（%1$d）</string>
+    <string name="st_chat_busy">チャット翻訳の上限に達しました — 少し後で追いつきます</string>
+    <string name="st_screen_failed">画面を読み取れませんでした — 今回はチャット翻訳がオフになります</string>
+    <string name="st_ocr_failed">チャット読み取りの問題（%1$s）</string>
 </resources>

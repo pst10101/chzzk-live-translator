@@ -10,8 +10,8 @@ android {
         applicationId 'io.github.pst10101.chzzktranslator'
         minSdk 29
         targetSdk 34
-        versionCode 4
-        versionName '1.3.0'
+        versionCode 5
+        versionName '1.0.0'
         // Only our own UI languages (androidx would otherwise bundle ~90 locales)
         resourceConfigurations += ['en', 'ko', 'ja']
     }

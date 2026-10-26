@@ -6,6 +6,8 @@ A Chrome extension — and now an **Android app (beta)** — that turns Korean s
 
 ![Example: English subtitles (Korean original below) from the Android app, over the official CHZZK app](docs/android-subtitles.jpg)
 
+> ⚠️ **This project uses free AI APIs, so the accuracy of speech recognition and translation is low. Mistakes and missing lines are common.**
+
 > **Disclaimer**
 > - This is an unofficial, fan-made, non-commercial project for personal and fan use. It is not affiliated with, endorsed by, or sponsored by NAVER, CHZZK, Stellive or any streamer. All names and trademarks belong to their owners.
 > - It does not download, record, save or re-upload any stream. It only listens to the audio and reads the chat of the page you are watching (short audio pieces go to the speech service you choose, see Privacy) and shows translations on your own screen.

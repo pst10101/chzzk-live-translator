@@ -18,6 +18,7 @@ A Chrome extension — and now an **Android app (beta)** — that turns Korean s
 - Chat translation under each message (nicknames are left alone; copy-paste spam is translated once and shown as "×N")
 - **Foreign chat → 한국어**: chat written in English, Japanese, Chinese and other languages can be translated into Korean — handy for Korean viewers and streamers (off by default)
 - **Built-in StelLive terms**: member names, fan names, greetings and memes in an English and a Japanese version, so Whisper spells names right and translations stay consistent (High accuracy mode and the Android app; on by default)
+- **Stream title** translated right under the title (live and replays)
 - Works on live streams and replays
 - [Android app (beta)](#android-app-beta) with the same subtitles and chat translation
 - Two modes:
@@ -58,7 +59,7 @@ This is a normal Chrome extension that you load by hand (no Chrome Web Store nee
 3. Click **Start live subtitles**.
 4. The first time, Chrome may need to download its translator. If you see *"Click here to download the free … translator"* on the player, click it once.
 
-While someone is talking, the Korean text appears in grey; when the sentence ends it turns into the translation. Chat is translated automatically (turn off **Translate chat** to stop it).
+While someone is talking, the Korean text appears in grey; when the sentence ends it turns into the translation. Chat and the stream title are translated automatically (turn off **Translate chat & title** to stop it).
 
 To also translate chat written in **other languages into Korean**, turn on **Foreign chat → 한국어**. Those translations are shown in green. In Free mode, Chrome may ask you once to click a message on the player to download a translator into Korean.
 
@@ -83,7 +84,7 @@ The same live subtitles and chat translation on Android phones — a separate ap
 3. Subtitles appear on the video a few seconds after speech (also in fullscreen).
 4. Tap **■ CC**, or **Stop** in the notification, when you're done.
 
-- **⚙** opens settings: keys, language, Whisper timing, *Translate chat*, *Foreign chat → 한국어*, subtitle size, names & terms.
+- **⚙** opens settings: keys, language, Whisper timing, *Translate chat & stream title*, *Foreign chat → 한국어*, subtitle size, names & terms.
 - If the floating bar covers something, drag it up or down by its **⠿** handle.
 - Chat translations appear in the chat under the player.
 - When Groq's daily free limit runs out, subtitles pause and come back when it resets (the app shows the time).
@@ -140,6 +141,7 @@ Free tier limit: about 40 requests per minute. Subtitles are translated first; i
   ```
   멤버이름 = Member Name
   자주 쓰는 말 = how to translate it
+  별명 = Nickname | who or what it is (a note for the AI, never shown)
   ```
 
   This helps Whisper spell names correctly and keeps translations consistent.

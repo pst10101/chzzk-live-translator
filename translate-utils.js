@@ -1,6 +1,10 @@
 // Prompt building and response parsing for the translation model (pure, testable in Node).
 
-/** "아이네 = Ine, 징버거" (commas or new lines) -> [{ ko: "아이네", tr: "Ine" }, { ko: "징버거", tr: "" }] */
+/**
+ * "아이네 = Ine, 징버거" (commas or new lines) -> [{ ko: "아이네", tr: "Ine", note: "" }, { ko: "징버거", tr: "", note: "" }]
+ * An optional "| note" after an entry tells the AI who or what the term is ("덕삼이 = Otaku Pork Belly | Hiyori's nickname").
+ * Lines starting with # are comments.
+ */
 export function parseGlossary(text) {
   return String(text || "")
     .split("\n")
@@ -10,10 +14,15 @@ export function parseGlossary(text) {
     .map((s) => s.trim())
     .filter(Boolean)
     .map((entry) => {
-      const [ko, ...rest] = entry.split(/=|→|->/);
-      return { ko: ko.trim(), tr: rest.join("=").trim() };
+      const [main, ...noteParts] = entry.split("|");
+      const [ko, ...rest] = main.split(/=|→|->/);
+      return { ko: ko.trim(), tr: rest.join("=").trim(), note: noteParts.join("|").trim() };
     })
     .filter((e) => e.ko);
+}
+
+function entryLine(e) {
+  return (e.tr ? `${e.ko} = ${e.tr}` : e.ko) + (e.note ? ` | ${e.note}` : "");
 }
 
 /** Korean spellings only — Whisper uses this as a spelling hint. */
@@ -47,7 +56,13 @@ export function presetGlossary(enText, jaText, lang) {
       section = line.slice(1).trim().toLowerCase();
       continue;
     }
-    out.push(ja || en || section === "names" ? line : line.split("=")[0].trim());
+    if (ja || en || section === "names") {
+      out.push(line);
+    } else {
+      // other languages: Korean term + note only; the model translates it itself
+      const [e] = parseGlossary(line);
+      if (e) out.push(entryLine({ ...e, tr: "" }));
+    }
   }
   return out.join("\n");
 }
@@ -60,7 +75,7 @@ export function mergeGlossaries(user, preset) {
     for (const e of parseGlossary(text)) {
       if (seen.has(e.ko)) continue;
       seen.add(e.ko);
-      out.push(e.tr ? `${e.ko} = ${e.tr}` : e.ko);
+      out.push(entryLine(e));
     }
   }
   return out.join("\n");
@@ -69,14 +84,15 @@ export function mergeGlossaries(user, preset) {
 function glossaryBlock(glossaryText, reverse = false) {
   const entries = parseGlossary(glossaryText);
   if (!entries.length) return "";
-  const lines = entries.map((e) =>
-    e.tr
-      ? reverse
-        ? `- ${e.tr} → ${e.ko}`
-        : `- ${e.ko} → ${e.tr}`
-      : `- ${e.ko} (proper name, keep consistent)`
+  const lines = entries.map((e) => {
+    const note = e.note ? ` (${e.note})` : "";
+    if (!e.tr) return `- ${e.ko}${note || " (proper name, keep consistent)"}`;
+    return reverse ? `- ${e.tr} → ${e.ko}${note}` : `- ${e.ko} → ${e.tr}${note}`;
+  });
+  return (
+    `\n\nGlossary (use these renderings; text in parentheses only explains who or what a term is — never put it in your output):\n` +
+    lines.join("\n")
   );
-  return `\n\nGlossary (use these renderings):\n${lines.join("\n")}`;
 }
 
 export function buildSubtitleMessages({ text, context = [], lang, glossary }) {

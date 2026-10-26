@@ -39,7 +39,8 @@
     st.textContent =
       `.${OURS}{display:block;margin-top:1px;font-size:.92em;font-weight:normal;color:#5fb0ff;overflow-wrap:anywhere}` +
       `.${OURS}.ctr-to-ko{color:#2ec27e}` +
-      `.${OURS}.ctr-inline{display:inline;margin-left:6px}`;
+      `.${OURS}.ctr-inline{display:inline;margin-left:6px}` +
+      `.${OURS}.ctr-title-tr{display:block;margin-top:2px;font-size:.78em;font-weight:500}`;
     (document.head || document.documentElement).appendChild(st);
   }
 
@@ -107,6 +108,15 @@
   setInterval(flush, FLUSH_MS);
 
   function onTranslated(m) {
+    if (titleWait.has(m.id)) {
+      const t = titleWait.get(m.id);
+      titleWait.delete(m.id);
+      const tr = Array.isArray(m.out) ? m.out[0] : null;
+      if (tr) cacheSet(cacheKey("out", t), tr);
+      else TITLE.failAt = Date.now();
+      titleTick();
+      return;
+    }
     const w = waiting.get(m.id);
     if (!w) return;
     waiting.delete(m.id);
@@ -129,12 +139,71 @@
       return;
     }
     if (m.type === "cfg") {
-      if (m.lang !== cfg.lang) cache.clear();
+      if (m.lang !== cfg.lang) {
+        cache.clear();
+        TITLE.failAt = 0;
+      }
       cfg = m;
+      titleTick();
     } else if (m.type === "trDone") {
       onTranslated(m);
     }
   });
+
+  // ---------- stream title (live and replays), with chat ("Translate chat") ----------
+  const TITLE = { path: "", title: null, at: 0, el: null, node: null, busy: false, failAt: 0 };
+  const titleWait = new Map(); // request id -> title
+
+  function clearTitle() {
+    if (TITLE.node) TITLE.node.remove();
+    TITLE.node = null;
+  }
+
+  async function titleTick() {
+    if (TITLE.busy) return;
+    if (!cfg.out || !cfg.ready) return clearTitle();
+    const path = location.pathname;
+    const url = Chat.titleApiUrl(path);
+    if (!url) {
+      TITLE.path = path;
+      TITLE.title = null;
+      return clearTitle();
+    }
+    TITLE.busy = true;
+    try {
+      if (path !== TITLE.path || Date.now() - TITLE.at > 60000) {
+        const r = await fetch(url, { credentials: "include" }).catch(() => null);
+        const t = r && r.ok ? Chat.titleFromApi(await r.json().catch(() => null)) : null;
+        TITLE.at = Date.now();
+        if (path !== TITLE.path || t !== TITLE.title) {
+          TITLE.path = path;
+          TITLE.title = t;
+          TITLE.el = null;
+          clearTitle();
+        }
+      }
+      const t = TITLE.title;
+      if (!t || !Chat.HANGUL.test(t)) return clearTitle();
+      const tr = cache.get(cacheKey("out", t));
+      if (!tr) {
+        if (![...titleWait.values()].includes(t) && Date.now() - TITLE.failAt > 30000) {
+          const id = ++seq;
+          titleWait.set(id, t);
+          send({ type: "tr", id, dir: "out", texts: [t] });
+          setTimeout(() => titleWait.delete(id), 60000);
+        }
+        return;
+      }
+      if (tr === t) return;
+      const el = Chat.findTitleEl(t, OURS, TITLE.el);
+      if (!el) return;
+      TITLE.el = el;
+      TITLE.node = Chat.placeTitle(el, tr, OURS, TITLE.node);
+    } finally {
+      TITLE.busy = false;
+    }
+  }
+  setInterval(titleTick, 3000);
 
   // ---------- watch chat ----------
   const added = new Set();

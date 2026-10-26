@@ -29,7 +29,7 @@
     <string name="set_pace">Whisper のタイミング</string>
     <string name="pace_allday">一日中（約15秒遅れ、1日約8時間）</string>
     <string name="pace_fast">速い（5〜10秒遅れ、1日3〜5時間）</string>
-    <string name="set_chat">チャットを翻訳（韓国語 → 選んだ言語）</string>
+    <string name="set_chat">チャットと配信タイトルを翻訳（韓国語 → 選んだ言語）</string>
     <string name="set_chat_ko">外国語チャット → 한국어（韓国語）</string>
     <string name="set_orig">字幕の下に韓国語の原文を表示</string>
     <string name="set_font">字幕の大きさ</string>

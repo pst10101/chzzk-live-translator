@@ -29,6 +29,8 @@
     for (const k of Object.keys(changes)) if (k in DEFAULTS) cfg[k] = changes[k].newValue ?? DEFAULTS[k];
     if ("targetLang" in changes || "engine" in changes) {
       cache.clear();
+      TITLE.tr = "";
+      TITLE.failAt = 0;
       translatorBlocked = "";
       koBlocked = "";
     }
@@ -766,6 +768,69 @@
   }
 
   setInterval(flush, FLUSH_MS);
+
+  // =====================================================================
+  // Stream title (live and replays): translated under the title, with chat ("Translate chat")
+  // =====================================================================
+
+  const TITLE = { path: "", title: null, at: 0, tr: "", el: null, node: null, busy: false, failAt: 0 };
+
+  function clearTitle() {
+    TITLE.node?.remove();
+    TITLE.node = null;
+  }
+
+  async function titleTick() {
+    if (TITLE.busy) return;
+    if (!cfg.chatEnabled) return clearTitle();
+    const path = location.pathname;
+    const url = Chat.titleApiUrl(path);
+    if (!url) {
+      TITLE.path = path;
+      TITLE.title = null;
+      return clearTitle();
+    }
+    TITLE.busy = true;
+    try {
+      // The title can change during a stream: re-check every minute.
+      if (path !== TITLE.path || Date.now() - TITLE.at > 60000) {
+        const r = await fetch(url, { credentials: "include" }).catch(() => null);
+        const t = r && r.ok ? Chat.titleFromApi(await r.json().catch(() => null)) : null;
+        TITLE.at = Date.now();
+        if (path !== TITLE.path || t !== TITLE.title) {
+          TITLE.path = path;
+          TITLE.title = t;
+          TITLE.tr = "";
+          TITLE.el = null;
+          clearTitle();
+        }
+      }
+      const t = TITLE.title;
+      if (!t || !Chat.HANGUL.test(t)) return clearTitle();
+      if (!TITLE.tr) {
+        const key = cacheKey("out", t);
+        if (cache.has(key)) {
+          TITLE.tr = cache.get(key);
+        } else if (chatReady("out") && Date.now() - TITLE.failAt > 30000) {
+          const res = await translateBatch([t], "out").catch(() => null);
+          if (res?.ok && res.translations?.[0]) {
+            TITLE.tr = res.translations[0];
+            cacheSet(key, TITLE.tr);
+          } else {
+            TITLE.failAt = Date.now();
+          }
+        }
+      }
+      if (!TITLE.tr || TITLE.tr === t) return;
+      const el = Chat.findTitleEl(t, OURS, TITLE.el);
+      if (!el) return;
+      TITLE.el = el;
+      TITLE.node = Chat.placeTitle(el, TITLE.tr, OURS, TITLE.node);
+    } finally {
+      TITLE.busy = false;
+    }
+  }
+  setInterval(titleTick, 3000);
 
   // Watch for new chat lines (and for React reusing a line with new text).
   const added = new Set(); // new subtrees: look for chat lines inside

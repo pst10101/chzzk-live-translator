@@ -29,7 +29,7 @@
     <string name="set_pace">Whisper 타이밍</string>
     <string name="pace_allday">종일 (약 15초 지연, 하루 약 8시간)</string>
     <string name="pace_fast">빠르게 (5–10초 지연, 하루 3–5시간)</string>
-    <string name="set_chat">채팅 번역 (한국어 → 선택한 언어)</string>
+    <string name="set_chat">채팅·방송 제목 번역 (한국어 → 선택한 언어)</string>
     <string name="set_chat_ko">외국어 채팅 → 한국어</string>
     <string name="set_orig">자막 아래에 한국어 원문 표시</string>
     <string name="set_font">자막 크기</string>

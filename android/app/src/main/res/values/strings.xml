@@ -32,7 +32,7 @@
     <string name="set_pace">Whisper timing</string>
     <string name="pace_allday">All day (~15 s behind, ~8 h a day)</string>
     <string name="pace_fast">Fast (5–10 s behind, 3–5 h a day)</string>
-    <string name="set_chat">Translate chat (Korean → your language)</string>
+    <string name="set_chat">Translate chat &amp; stream title (Korean → your language)</string>
     <string name="set_chat_ko">Foreign chat → 한국어 (Korean)</string>
     <string name="set_orig">Show Korean under subtitles</string>
     <string name="set_font">Subtitle size</string>

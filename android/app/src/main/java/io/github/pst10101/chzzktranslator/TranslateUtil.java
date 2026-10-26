@@ -13,8 +13,13 @@ public final class TranslateUtil {
 
     /** One glossary entry: Korean spelling and (optional) preferred rendering. */
     public static final class Entry {
-        public final String ko, tr;
-        Entry(String ko, String tr) { this.ko = ko; this.tr = tr; }
+        public final String ko, tr, note;
+        Entry(String ko, String tr, String note) { this.ko = ko; this.tr = tr; this.note = note; }
+    }
+
+    /** "ko = tr | note" (the same line format the glossary files use). */
+    static String entryLine(String ko, String tr, String note) {
+        return (tr.isEmpty() ? ko : ko + " = " + tr) + (note.isEmpty() ? "" : " | " + note);
     }
 
     /** "아이네 = Ine, 징버거" (commas or new lines) -> [(아이네, Ine), (징버거, "")] */
@@ -28,10 +33,13 @@ public final class TranslateUtil {
         for (String raw : noComments.toString().split("[\\n,]")) {
             String e = raw.trim();
             if (e.isEmpty()) continue;
-            String[] parts = e.split("=|→|->", 2);
+            int bar = e.indexOf('|');
+            String main = bar >= 0 ? e.substring(0, bar) : e;
+            String note = bar >= 0 ? e.substring(bar + 1).trim() : "";
+            String[] parts = main.split("=|→|->", 2);
             String ko = parts[0].trim();
             String tr = parts.length > 1 ? parts[1].replaceAll("=|→|->", "=").trim() : "";
-            if (!ko.isEmpty()) out.add(new Entry(ko, tr));
+            if (!ko.isEmpty()) out.add(new Entry(ko, tr, note));
         }
         return out;
     }
@@ -55,8 +63,17 @@ public final class TranslateUtil {
                 section = line.substring(1).trim().toLowerCase(java.util.Locale.ROOT);
                 continue;
             }
+            String add;
+            if (ja || en || section.equals("names")) {
+                add = line;
+            } else {
+                // other languages: Korean term + note only; the model translates it itself
+                List<Entry> es = parseGlossary(line);
+                if (es.isEmpty()) continue;
+                add = entryLine(es.get(0).ko, "", es.get(0).note);
+            }
             if (out.length() > 0) out.append('\n');
-            out.append(ja || en || section.equals("names") ? line : line.split("=")[0].trim());
+            out.append(add);
         }
         return out.toString();
     }
@@ -69,7 +86,7 @@ public final class TranslateUtil {
             for (Entry e : parseGlossary(text)) {
                 if (!seen.add(e.ko)) continue;
                 if (out.length() > 0) out.append('\n');
-                out.append(e.tr.isEmpty() ? e.ko : e.ko + " = " + e.tr);
+                out.append(entryLine(e.ko, e.tr, e.note));
             }
         }
         return out.toString();
@@ -90,12 +107,13 @@ public final class TranslateUtil {
     static String glossaryBlock(String glossary, boolean reverse) {
         List<Entry> entries = parseGlossary(glossary);
         if (entries.isEmpty()) return "";
-        StringBuilder sb = new StringBuilder("\n\nGlossary (use these renderings):");
+        StringBuilder sb = new StringBuilder("\n\nGlossary (use these renderings; text in parentheses only explains who or what a term is — never put it in your output):");
         for (Entry e : entries) {
+            String note = e.note.isEmpty() ? "" : " (" + e.note + ")";
             sb.append("\n- ");
-            if (e.tr.isEmpty()) sb.append(e.ko).append(" (proper name, keep consistent)");
-            else if (reverse) sb.append(e.tr).append(" → ").append(e.ko);
-            else sb.append(e.ko).append(" → ").append(e.tr);
+            if (e.tr.isEmpty()) sb.append(e.ko).append(note.isEmpty() ? " (proper name, keep consistent)" : note);
+            else if (reverse) sb.append(e.tr).append(" → ").append(e.ko).append(note);
+            else sb.append(e.ko).append(" → ").append(e.tr).append(note);
         }
         return sb.toString();
     }
